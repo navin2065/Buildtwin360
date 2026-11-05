@@ -1,0 +1,446 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { soundEngine } from '../utils/audio';
+import { EXPERIENCE_CONFIG } from '../config/experienceConfig';
+import GoldenButterflies from './GoldenButterflies';
+
+// Traditional Quill / Pen Indicator with Sparkling Writing Point
+const PenWritingIndicator = () => (
+  <span className="inline-flex items-center align-baseline ml-1 pointer-events-none select-none">
+    <span className="relative inline-block animate-bounce">
+      <svg
+        viewBox="0 0 24 24"
+        className="w-4 h-4 sm:w-5 sm:h-5 text-gold-500 fill-amber-300 stroke-[#8f6e1b] inline-block -rotate-45 filter drop-shadow-[0_0_6px_rgba(212,175,55,0.8)]"
+      >
+        <path
+          d="M12 19l7-7 3 3-7 7-3-3z M18 13l-1.5-1.5 M3 21l3-1 11-11-2-2L4 18l-1 3z"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <span className="absolute -top-1.5 -right-1.5 text-[9px] text-amber-200 animate-ping">✨</span>
+      <span className="absolute -bottom-1 -left-1 w-1.5 h-1.5 rounded-full bg-gold-400 blur-xs animate-pulse" />
+    </span>
+  </span>
+);
+
+export default function BirthdaySurpriseCelebration({ onRestart }) {
+  const { celebration, grandfatherTribute, footer } = EXPERIENCE_CONFIG;
+
+  /**
+   * Exact Sequential Phases:
+   * 1. 'READY'           : Clean 3:4 video frame with glowing "SURPRISE" inside.
+   *                        Background birthday instrumental BGM plays gently.
+   *                        Prominent "BLOW THE CANDLE" button below frame.
+   * 2. 'FADING_SURPRISE' : BGM stops, blow sound triggers, "SURPRISE" fades away,
+   *                        golden butterflies fly across screen.
+   * 3. 'PLAYING'         : 3:4 video autoplays; 6 small photos orbit outer sides.
+   * 4. 'TRIBUTE'         : Video ends -> Grandfather Tribute AUTOMATICALLY appears
+   *                        and starts writing with pen-writing effect & sparkles,
+   *                        followed by "Crafted by your Thambi, NAVIN".
+   */
+  const [phase, setPhase] = useState('READY');
+  const [videoError, setVideoError] = useState(false);
+  const [showSwarm, setShowSwarm] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Typewriter state for Grandfather Tribute & Footer
+  const [typedChars, setTypedChars] = useState(0);
+  const [footerChars, setFooterChars] = useState(0);
+
+  const videoRef = useRef(null);
+  const tributeContainerRef = useRef(null);
+
+  // Detect mobile
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Play pleasant birthday instrumental BGM before clicking "BLOW THE CANDLE"
+  useEffect(() => {
+    if (phase === 'READY') {
+      soundEngine.playBirthdaySong(celebration.birthdayBgmSource || '/sound.mp3');
+    }
+    return () => {
+      soundEngine.stopBirthdaySong();
+    };
+  }, [phase, celebration.birthdayBgmSource]);
+
+  // Grandfather Tribute text preparation
+  const tributeParagraphs = grandfatherTribute.paragraphs || [];
+  const tributeClosing = grandfatherTribute.closing || '';
+  const allTributeText = [...tributeParagraphs, tributeClosing].join('\n\n');
+  const totalTributeChars = allTributeText.length;
+
+  const footerText = footer.craftedBy || 'Crafted by your Thambi, NAVIN';
+  const totalFooterChars = footerText.length;
+
+  // Derived states to prevent cascading renders
+  const isTributeDone = typedChars >= totalTributeChars;
+  const isFooterDone = isTributeDone && footerChars >= totalFooterChars;
+
+  // Selected orbiting photos from actual files
+  const orbitPhotos = celebration.orbitPhotos || [];
+
+  // User clicks "BLOW THE CANDLE"
+  const handleBlowCandle = () => {
+    if (phase !== 'READY') return;
+
+    // 1. Stop background BGM and play candle blow sound
+    soundEngine.stopBirthdaySong();
+    if (celebration.candleBlowSoundSource) {
+      soundEngine.playBirthdaySong(celebration.candleBlowSoundSource);
+    } else {
+      soundEngine.playCandleBlow();
+    }
+
+    // 2. Fade the word "SURPRISE" and launch golden butterflies
+    setPhase('FADING_SURPRISE');
+    setShowSwarm(true);
+
+    // 3. Once text fades (900ms), reveal and autoplay birthday video
+    setTimeout(() => {
+      setPhase('PLAYING');
+      setShowSwarm(false);
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0;
+        videoRef.current.play().catch(() => {});
+      }
+    }, 900);
+  };
+
+  // Video complete handler: onEnded -> transition smoothly to Grandfather Tribute
+  const handleVideoEnded = () => {
+    soundEngine.playBellChime();
+    setPhase('TRIBUTE');
+    setTypedChars(1); // AUTOMATICALLY start writing immediately
+  };
+
+  // Tribute character-by-character typewriter effect (~22ms per character matching cover letter)
+  useEffect(() => {
+    if (phase !== 'TRIBUTE' || isTributeDone) return;
+
+    const timer = setTimeout(() => {
+      setTypedChars((prev) => prev + 1);
+
+      if (tributeContainerRef.current) {
+        tributeContainerRef.current.scrollTop = tributeContainerRef.current.scrollHeight;
+      }
+    }, 22);
+
+    return () => clearTimeout(timer);
+  }, [phase, isTributeDone]);
+
+  // Footer typewriter effect after tribute completes (character by character)
+  useEffect(() => {
+    if (!isTributeDone || isFooterDone) return;
+
+    const timer = setTimeout(() => {
+      setFooterChars((prev) => prev + 1);
+    }, 45);
+
+    return () => clearTimeout(timer);
+  }, [isTributeDone, isFooterDone]);
+
+  // Tap to reveal full tribute text immediately
+  const handleSkipTributeTyping = () => {
+    setTypedChars(totalTributeChars);
+    setFooterChars(totalFooterChars);
+  };
+
+  // Render tribute text character-by-character
+  const renderTypedTribute = () => {
+    let remainingChars = typedChars;
+    const items = [...tributeParagraphs, tributeClosing];
+
+    return items.map((paragraph, pIdx) => {
+      const isClosing = pIdx === items.length - 1;
+      const pLen = paragraph.length;
+      const count = Math.min(remainingChars, pLen);
+      remainingChars = Math.max(0, remainingChars - pLen - 2);
+
+      if (count === 0) return null;
+      const textToDisplay = paragraph.slice(0, count);
+      const isCurrentlyTyping = count < pLen && count > 0;
+
+      if (isClosing) {
+        return (
+          <div key={pIdx} className="pt-3 text-center">
+            <p className="font-serif italic text-xs sm:text-sm text-[#8f6e1b] font-semibold tracking-wide leading-relaxed">
+              "{textToDisplay}"
+              {isCurrentlyTyping && <PenWritingIndicator />}
+            </p>
+          </div>
+        );
+      }
+
+      return (
+        <p
+          key={pIdx}
+          className="font-serif text-xs sm:text-sm text-[#261b14] leading-relaxed sm:leading-loose text-justify font-normal"
+        >
+          {textToDisplay}
+          {isCurrentlyTyping && <PenWritingIndicator />}
+        </p>
+      );
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 w-full h-[100dvh] max-h-[100dvh] bg-[#070e0a] text-champagne-100 flex flex-col justify-between items-center select-none overflow-hidden z-40">
+      {/* Background Magical Atmosphere: Dark Forest & Golden Glow (NO RED UI) */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(23,46,35,0.7)_0%,rgba(5,10,7,0.98)_95%)] pointer-events-none" />
+      <GoldenButterflies count={showSwarm ? 22 : 10} interactive={false} />
+
+      {/* ─────────────────────────────────────────────────────────────
+          STAGES 5 & 6: VIDEO FRAME (SURPRISE REVEAL & PLAYBACK)
+          Mobile-aligned: zero overflow, perfectly centered, no overlap.
+          ───────────────────────────────────────────────────────────── */}
+      {phase !== 'TRIBUTE' && (
+        <div className="relative z-20 w-full h-full flex flex-col justify-between items-center py-2 sm:py-4 px-3 max-w-lg mx-auto animate-fade-in">
+          
+          {/* Subtle Header */}
+          <div className="text-center pt-1 shrink-0">
+            <span className="font-cinzel text-[10px] sm:text-xs tracking-[0.25em] text-gold-400 uppercase font-semibold">
+              Birthday Surprise
+            </span>
+          </div>
+
+          {/* ─────────────────────────────────────────────────────────
+              CENTER CONTAINER: 3:4 VIDEO FRAME + CIRCULAR ORBITING PHOTOS
+              ───────────────────────────────────────────────────────── */}
+          <div className="relative my-auto flex items-center justify-center w-full">
+            
+            {/* ─────────────────────────────────────────────────────
+                CIRCULAR ORBITING PHOTOS (OUTER SIDES OF VIDEO FRAME)
+                Strictly outside the 3:4 video area, never covering it
+                ───────────────────────────────────────────────────── */}
+            {phase === 'PLAYING' && (
+              <div
+                className="absolute rounded-full pointer-events-none z-10 flex items-center justify-center animate-orbit"
+                style={{
+                  width: isMobile ? '330px' : '440px',
+                  height: isMobile ? '330px' : '440px',
+                }}
+              >
+                {orbitPhotos.map((photo, i) => {
+                  const angle = (i * 360) / orbitPhotos.length;
+                  const radius = isMobile ? 155 : 210;
+                  const rad = (angle * Math.PI) / 180;
+                  const x = Math.round(radius * Math.cos(rad));
+                  const y = Math.round(radius * Math.sin(rad));
+
+                  return (
+                    <div
+                      key={photo.id}
+                      style={{
+                        transform: `translate3d(${x}px, ${y}px, 0)`,
+                      }}
+                      className="absolute w-9 h-11 xs:w-10 xs:h-12 sm:w-12 sm:h-14 rounded-lg overflow-hidden border border-gold-400/60 shadow-[0_4px_16px_rgba(0,0,0,0.85)] bg-stone-900 pointer-events-none"
+                    >
+                      <div className="w-full h-full animate-orbit-counter">
+                        <img
+                          src={photo.src}
+                          alt="Memory"
+                          className="w-full h-full object-cover pointer-events-none"
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* ─────────────────────────────────────────────────────
+                THE SINGLE CLEAN, LUXURY 3:4 VIDEO FRAME
+                Sized properly for mobile without cropping or distortion
+                ───────────────────────────────────────────────────── */}
+            <div className="relative z-20 w-[210px] xs:w-[230px] sm:w-[270px] md:w-[300px] aspect-[3/4] max-h-[58dvh] rounded-2xl overflow-hidden bg-black/95 border-2 border-gold-400/80 shadow-[0_0_45px_rgba(212,175,55,0.45),0_25px_60px_rgba(0,0,0,0.95)] flex items-center justify-center">
+              
+              {/* REAL VIDEO PLAYER (Hidden until blown) */}
+              {!videoError ? (
+                <video
+                  ref={videoRef}
+                  playsInline
+                  webkit-playsinline="true"
+                  controls={false}
+                  onEnded={handleVideoEnded}
+                  onError={() => {
+                    setVideoError(true);
+                    setTimeout(handleVideoEnded, 5000);
+                  }}
+                  className={`w-full h-full object-cover transition-opacity duration-1000 ${
+                    phase === 'PLAYING' ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                  }`}
+                >
+                  <source src={celebration.videoSource || './candle.mp4'} type="video/mp4" />
+                  <source src="./candle.mp4" type="video/mp4" />
+                </video>
+              ) : (
+                <div className="p-4 text-center">
+                  <p className="font-serif text-xs text-gold-300">
+                    Birthday Video
+                  </p>
+                  <button
+                    onClick={handleVideoEnded}
+                    className="mt-3 px-4 py-1.5 rounded-full bg-gold-500/30 text-gold-200 text-[10px]"
+                  >
+                    Continue to Tribute →
+                  </button>
+                </div>
+              )}
+
+              {/* ─────────────────────────────────────────────────
+                  INSIDE VIDEO FRAME: THE WORD "SURPRISE"
+                  Covering the video until user clicks "BLOW THE CANDLE"
+                  ───────────────────────────────────────────────── */}
+              {(phase === 'READY' || phase === 'FADING_SURPRISE') && (
+                <div
+                  className={`absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#11231a] via-[#070e0a] to-[#040806] transition-opacity duration-900 ${
+                    phase === 'FADING_SURPRISE' ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                  }`}
+                >
+                  <div className="w-24 h-24 rounded-full bg-gold-500/20 blur-2xl absolute pointer-events-none" />
+
+                  <span className="font-cinzel text-[10px] sm:text-xs text-gold-400/80 uppercase tracking-[0.25em] mb-2 font-medium">
+                    ✦ A Special Moment ✦
+                  </span>
+
+                  <h1 className="font-serif font-black text-3xl sm:text-4xl md:text-5xl tracking-[0.18em] text-gold-300 text-glow-gold uppercase animate-pulse">
+                    {celebration.surpriseWord || 'SURPRISE'}
+                  </h1>
+
+                  <span className="text-[10px] sm:text-[11px] font-serif italic text-champagne-300/70 mt-3 text-center px-4">
+                    Tap the button below to blow the candle
+                  </span>
+                </div>
+              )}
+
+              {/* Delicate Gold Inner Border */}
+              <div className="absolute inset-0 border border-gold-400/30 rounded-2xl pointer-events-none z-40" />
+            </div>
+          </div>
+
+          {/* ─────────────────────────────────────────────────────────
+              BOTTOM INTERACTION: "BLOW THE CANDLE" BUTTON
+              ───────────────────────────────────────────────────────── */}
+          <div className="pb-2 sm:pb-4 text-center w-full max-w-xs shrink-0 z-30">
+            {phase === 'READY' && (
+              <button
+                onClick={handleBlowCandle}
+                className="w-full px-7 py-3 sm:py-3.5 rounded-full bg-gradient-to-r from-gold-500 via-amber-300 to-gold-600 hover:from-gold-400 hover:to-amber-200 text-forest-950 font-serif font-extrabold text-xs sm:text-sm tracking-widest uppercase shadow-[0_0_28px_rgba(212,175,55,0.7),0_10px_25px_rgba(0,0,0,0.6)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>{celebration.blowButtonText}</span>
+                <span>✨</span>
+              </button>
+            )}
+
+            {phase === 'FADING_SURPRISE' && (
+              <div className="text-gold-300 font-cinzel text-xs uppercase tracking-widest animate-pulse">
+                <span>Blowing out the candle... ✨</span>
+              </div>
+            )}
+
+            {phase === 'PLAYING' && (
+              <p className="text-[10px] sm:text-xs font-serif text-champagne-300/70 tracking-wider">
+                ✨ Playing your birthday surprise to the very end... ✨
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
+          STAGE 6 & 7: GRANDFATHER TRIBUTE SECTION
+          Automatically starts handwriting when video completes!
+          Realistic pen-writing + subtle sparkles + forest/golden theme
+          ───────────────────────────────────────────────────────────── */}
+      {phase === 'TRIBUTE' && (
+        <div
+          onClick={handleSkipTributeTyping}
+          title="Tap anywhere to reveal full tribute"
+          className="relative z-20 w-full h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center py-2 sm:py-4 px-3 sm:px-6 max-w-lg mx-auto cursor-pointer animate-fade-in"
+        >
+          {/* Tribute Header */}
+          <header className="text-center pt-1 shrink-0 w-full">
+            <span className="font-cinzel text-[10px] sm:text-xs tracking-[0.25em] text-gold-400 uppercase font-semibold">
+              {grandfatherTribute.sectionTag}
+            </span>
+            <h2 className="font-serif font-bold text-lg sm:text-2xl text-champagne-100 tracking-tight text-glow-gold mt-0.5">
+              {grandfatherTribute.title}
+            </h2>
+          </header>
+
+          {/* Traditional Ivory Parchment Paper (Matching Cover Letter Style) */}
+          <main className="relative w-full rounded-2xl bg-[#faf6ee] text-[#1b120c] p-4 xs:p-5 sm:p-7 shadow-[0_20px_60px_rgba(0,0,0,0.9)] border-3 border-[#d4af37]/60 my-auto flex flex-col justify-between min-h-[340px] xs:min-h-[380px] sm:min-h-[440px] max-h-[64dvh]">
+            
+            {/* Scrollable Letter Body (Internal Scroll Only) */}
+            <div
+              ref={tributeContainerRef}
+              className="flex-1 overflow-y-auto no-scrollbar scroll-smooth pr-1 select-text space-y-2.5 my-1"
+            >
+              {renderTypedTribute()}
+            </div>
+
+            {/* Subtle Gradient Shadow Indicator at Paper Bottom */}
+            <div className="h-4 bg-gradient-to-t from-[#faf6ee] to-transparent pointer-events-none -mt-4 shrink-0" />
+          </main>
+
+          {/* ─────────────────────────────────────────────────────────
+              STAGE 7: SEPARATE FINAL SIGNATURE BELOW THE LETTER
+              Visually separate from tribute, types character by character:
+              "Crafted by Naveen"
+              ───────────────────────────────────────────────────────── */}
+          {isTributeDone && (
+            <div className="pt-2 sm:pt-3 text-center shrink-0 animate-fade-in">
+              <p className="font-handwritten text-2xl sm:text-3xl text-gold-300 font-bold tracking-wide drop-shadow-md text-glow-gold">
+                {footerText.slice(0, footerChars)}
+                {!isFooterDone && <PenWritingIndicator />}
+              </p>
+            </div>
+          )}
+
+          {/* Bottom Actions when complete */}
+          <footer className="shrink-0 pt-1 pb-2 text-center w-full">
+            {isFooterDone ? (
+              <div className="flex items-center justify-center gap-4 text-xs font-serif">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    soundEngine.playCardClick();
+                    setPhase('READY');
+                    setTypedChars(0);
+                    setFooterChars(0);
+                  }}
+                  className="text-gold-300 hover:text-white underline underline-offset-4 cursor-pointer"
+                >
+                  Replay Birthday Video ↺
+                </button>
+                <span className="text-gold-500/40">•</span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    soundEngine.playCardClick();
+                    onRestart?.();
+                  }}
+                  className="text-gold-300 hover:text-white underline underline-offset-4 cursor-pointer"
+                >
+                  Return to Story Cover 📖
+                </button>
+              </div>
+            ) : (
+              <p className="text-[10px] text-champagne-300/60 font-serif">
+                Tap anywhere to reveal full tribute
+              </p>
+            )}
+          </footer>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 
+/**
+ * CustomCursor: Magical golden stardust and butterfly shimmer on pointer touch/click.
+ * Works seamlessly across both desktop and mobile devices.
+ */
 export default function CustomCursor() {
-  const [hearts, setHearts] = useState([]);
+  const [sparkles, setSparkles] = useState([]);
 
   useEffect(() => {
-    // Global Heart Shadow Touch/Click Effect with Rodnoy (Instant on both mobile tap & desktop click)
-    const handleTouchOrClick = (e) => {
+    const handlePointerDown = (e) => {
       const clientX =
         e.clientX !== undefined
           ? e.clientX
@@ -20,47 +23,52 @@ export default function CustomCursor() {
           : window.innerHeight / 2;
       const id = Date.now() + Math.random();
 
-      setHearts((prev) => [...prev.slice(-6), { id, x: clientX, y: clientY }]);
+      setSparkles((prev) => [...prev.slice(-8), { id, x: clientX, y: clientY }]);
       setTimeout(() => {
-        setHearts((prev) => prev.filter((h) => h.id !== id));
-      }, 760);
+        setSparkles((prev) => prev.filter((s) => s.id !== id));
+      }, 820);
     };
 
-    window.addEventListener('pointerdown', handleTouchOrClick, { passive: true });
+    window.addEventListener('pointerdown', handlePointerDown, { passive: true });
 
     return () => {
-      window.removeEventListener('pointerdown', handleTouchOrClick);
+      window.removeEventListener('pointerdown', handlePointerDown);
     };
   }, []);
 
   return (
     <>
-      {/* Floating Ethereal Heart Shadow + Rodnoy Badge at Touch / Click Location (Blooms on click, then fades cleanly) */}
-      {hearts.map((h) => (
+      {sparkles.map((s) => (
         <div
-          key={h.id}
-          style={{ left: h.x, top: h.y }}
-          className="fixed pointer-events-none z-[99999] select-none animate-heart-shadow flex flex-col items-center gap-1"
+          key={s.id}
+          style={{ left: s.x, top: s.y }}
+          className="fixed pointer-events-none z-[99999] select-none animate-gold-sparkle flex items-center justify-center -translate-x-1/2 -translate-y-1/2"
         >
-          <div className="relative flex items-center justify-center">
-            {/* Soft Heart Glow Aura */}
-            <div className="absolute w-10 h-10 rounded-full bg-rose-500/25 blur-md pointer-events-none" />
+          {/* Radial Gold Luminescence */}
+          <div className="absolute w-14 h-14 rounded-full bg-amber-400/25 blur-lg pointer-events-none" />
 
-            {/* Glowing Heart Shadow Silhouette */}
-            <svg
-              viewBox="0 0 24 24"
-              className="w-7 h-7 fill-rose-500/35 stroke-rose-300/85 stroke-[1.5] filter drop-shadow-[0_0_12px_rgba(244,63,94,0.9)]"
-            >
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            </svg>
-          </div>
-
-          {/* Floating Rodnoy Text with Golden Sparkle Glow on Click */}
-          <div className="px-2 py-0.5 rounded-full bg-black/75 border border-amber-300/60 backdrop-blur-sm shadow-[0_4px_12px_rgba(0,0,0,0.7)] whitespace-nowrap">
-            <span className="text-[10px] sm:text-xs font-heading font-extrabold text-amber-200 tracking-wider">
-              ✨ Rodnoy ✨
-            </span>
-          </div>
+          {/* Luminous Butterfly Sparkle Silhouette */}
+          <svg
+            viewBox="0 0 40 40"
+            className="w-8 h-8 filter drop-shadow-[0_0_12px_rgba(245,215,120,0.95)]"
+          >
+            {/* Left Wing */}
+            <path
+              d="M20 20 C10 12, 4 14, 8 26 C12 28, 16 26, 20 20 Z"
+              fill="rgba(245, 215, 120, 0.85)"
+              stroke="rgba(255, 245, 210, 0.9)"
+              strokeWidth="0.8"
+            />
+            {/* Right Wing */}
+            <path
+              d="M20 20 C30 12, 36 14, 32 26 C28 28, 24 26, 20 20 Z"
+              fill="rgba(245, 215, 120, 0.85)"
+              stroke="rgba(255, 245, 210, 0.9)"
+              strokeWidth="0.8"
+            />
+            {/* Center diamond spark */}
+            <circle cx="20" cy="20" r="1.5" fill="#ffffff" />
+          </svg>
         </div>
       ))}
     </>

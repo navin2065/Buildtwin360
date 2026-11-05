@@ -1,77 +1,75 @@
 import React, { useState } from 'react';
 import CustomCursor from './components/CustomCursor';
-import LockScreen from './components/LockScreen';
-import DateExplosion from './components/DateExplosion';
+import Screen1Opening from './components/Screen1Opening';
 import SurpriseLoader from './components/SurpriseLoader';
+import MemoriesGallery from './components/MemoriesGallery';
 import EnvelopeLetter from './components/EnvelopeLetter';
-import SceneHero from './components/SceneHero';
-import CandleFinale from './components/CandleFinale';
+import BirthdaySurpriseCelebration from './components/BirthdaySurpriseCelebration';
 import { soundEngine } from './utils/audio';
 
 export default function App() {
-  // Flow requested by user:
-  // 1: 'LOCK' (Passcode screen with polaroid & big ribbon bow)
-  // 2: 'EXPLOSION' (Date particle blast: 26 • 09 • 2026)
-  // 3: 'LOADING' (Luxury crimson editorial loader)
-  // 4: 'LETTER' (Cover letter -> Rolled scroll with thread untie -> Scalloped letter & 3-photo column)
-  // 5: 'HERO' (100% Fullscreen Sibling Photo & 'Blow Candle' button)
-  // 6: 'CANDLE' (Single candle blow -> Falling photo ribbons & confetti blast!)
-  const [stage, setStage] = useState('LOCK');
+  /**
+   * The Strict 8-Stage Sequential Birthday Surprise Journey:
+   * 1. 'OPENING'     – Contact Question Screen ("aruna akkow" secret word)
+   * 2. 'LOADING'     – Existing Editorial Surprise Loader (0% - 100%)
+   * 3. 'GALLERY'     – 90° 3D perspective rotating memories gallery (MEM1 - MEM20)
+   * 4. 'LETTER'      – Existing unrolling parchment letter with character typewriter
+   * 5-8. 'CELEBRATION' – Handled sequentially in BirthdaySurpriseCelebration:
+   *      5. Birthday Surprise Screen ("BLOW THE CANDLE", video hidden)
+   *      6. 3:4 Vertical Video Playback (candle.mp4 + 10 floating marginal photos)
+   *      7. Grandfather Tribute (character typewriter + smooth auto-scroll)
+   *      8. Final "Crafted by your brother, Naveen" typewriter footer
+   */
+  const [stage, setStage] = useState('OPENING');
 
-  const handleUnlock = (code) => {
-    setStage('EXPLOSION');
-  };
-
-  const handleExplosionComplete = () => {
+  const handleOpeningSuccess = () => {
     setStage('LOADING');
   };
 
   const handleLoadingComplete = () => {
-    // Directly go to Cover Letter after Loading!
+    setStage('GALLERY');
+  };
+
+  const handleGalleryNext = () => {
     setStage('LETTER');
-    soundEngine.startAmbientMusic();
   };
 
-  const handleLetterComplete = () => {
-    // After Letter -> go to Fullscreen Sibling Hero Photo!
-    setStage('HERO');
-  };
-
-  const handleHeroComplete = () => {
-    // After Hero Photo -> go to Candle Blow Finale!
-    setStage('CANDLE');
+  const handleLetterNext = () => {
+    setStage('CELEBRATION');
   };
 
   const handleRestart = () => {
-    setStage('LOCK');
+    soundEngine.stopBirthdaySong();
+    setStage('OPENING');
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#7c1524] text-slate-100 font-sans relative selection:bg-rose-400 selection:text-black overflow-x-hidden">
-      {/* Sibling Love Magnetic Cursor for Desktop */}
+    <div className="fixed inset-0 h-[100dvh] max-h-[100dvh] w-full bg-[#070e0a] text-champagne-100 font-sans select-none overflow-hidden">
+      {/* 1. Global Magical Butterfly Stardust Pointer */}
       <CustomCursor />
 
-      {/* Stage 1: Passcode Keypad Screen */}
-      {stage === 'LOCK' && <LockScreen onUnlock={handleUnlock} />}
-
-      {/* Stage 2: Date Explosion Particle Blast */}
-      {stage === 'EXPLOSION' && (
-        <DateExplosion onComplete={handleExplosionComplete} />
+      {/* ─────────────────────────────────────────────────────────────
+          THE MANDATORY SEQUENTIAL BIRTHDAY EXPERIENCE
+          ───────────────────────────────────────────────────────────── */}
+      {stage === 'OPENING' && (
+        <Screen1Opening onEnter={handleOpeningSuccess} />
       )}
 
-      {/* Stage 3: Luxury Crimson Editorial Loader */}
       {stage === 'LOADING' && (
         <SurpriseLoader onLoaded={handleLoadingComplete} />
       )}
 
-      {/* Stage 4: Cover Letter -> Rolled Scroll with Thread Untie -> Letter & 3 Photos */}
-      {stage === 'LETTER' && <EnvelopeLetter onNext={handleLetterComplete} />}
+      {stage === 'GALLERY' && (
+        <MemoriesGallery onNext={handleGalleryNext} />
+      )}
 
-      {/* Stage 5: 100% Fullscreen Cinematic Sibling Hero Screen */}
-      {stage === 'HERO' && <SceneHero onNext={handleHeroComplete} />}
+      {stage === 'LETTER' && (
+        <EnvelopeLetter onNext={handleLetterNext} />
+      )}
 
-      {/* Stage 6: Single Candle Blow Finale & Falling Photo Ribbons Blast */}
-      {stage === 'CANDLE' && <CandleFinale onRestart={handleRestart} />}
+      {stage === 'CELEBRATION' && (
+        <BirthdaySurpriseCelebration onRestart={handleRestart} />
+      )}
     </div>
   );
 }

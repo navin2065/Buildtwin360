@@ -136,7 +136,6 @@ class SoundEngine {
   playConfettiPop() {
     this.init();
     if (!this.ctx) return;
-    const now = this.ctx.currentTime;
     [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
       this.playNote(freq, 0.6, idx * 0.06, 0.15);
     });
@@ -269,20 +268,19 @@ class SoundEngine {
       try {
         this.customAudio.pause();
         this.customAudio.currentTime = 0;
-      } catch (err) {
+      } catch (_err) {
         // ignore
       }
     }
 
     const candidateUrls = [
       customUrl,
+      './sound.mp3',
       '/sound.mp3',
+      './birthday-song.mp3',
       '/birthday-song.mp3',
+      './song.mp3',
       '/song.mp3',
-      '/birthday.mp3',
-      '/music.mp3',
-      '/bgm.mp3',
-      '/audio.mp3'
     ].filter(Boolean);
 
     let currentIndex = 0;
@@ -321,7 +319,7 @@ class SoundEngine {
       try {
         this.customAudio.pause();
         this.customAudio.currentTime = 0;
-      } catch (err) {
+      } catch (_err) {
         // ignore
       }
       this.customAudio = null;
