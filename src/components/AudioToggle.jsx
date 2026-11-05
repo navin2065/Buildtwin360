@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { soundEngine } from '../utils/audio';
 
 export default function AudioToggle() {
-  const [isPlaying, setIsPlaying] = useState(soundEngine.isPlayingMusic);
+  const [isPlaying, setIsPlaying] = useState(soundEngine.isAudioActive());
 
   useEffect(() => {
     const checkState = () => {
-      setIsPlaying(soundEngine.isPlayingMusic);
+      setIsPlaying(soundEngine.isAudioActive());
     };
-    const interval = setInterval(checkState, 600);
+    const interval = setInterval(checkState, 500);
     return () => clearInterval(interval);
   }, []);
 

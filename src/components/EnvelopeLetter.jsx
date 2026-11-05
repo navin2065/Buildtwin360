@@ -130,10 +130,10 @@ export default function EnvelopeLetter({ onNext }) {
         );
       }
 
-      // Signoff: "Your Thambi, NAVIN"
+      // Signoff: "With love and respect,\nYour Thambi,\nNAVIN"
       if (section.type === 'signoff') {
         return (
-          <div key={section.id} className="text-right font-serif text-[11px] sm:text-xs text-[#5a4228] font-semibold tracking-wide">
+          <div key={section.id} className="text-right font-serif text-[11px] sm:text-xs text-[#5a4228] font-semibold tracking-wide whitespace-pre-line pt-2">
             {displayedText}
             {isCurrentlyTyping && <PenWritingIndicator />}
           </div>

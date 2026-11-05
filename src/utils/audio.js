@@ -123,11 +123,11 @@ class SoundEngine {
   }
 
   toggleMusic() {
-    if (this.isPlayingMusic) {
-      this.stopAmbientMusic();
+    if (this.isPlayingMusic || (this.customAudio && !this.customAudio.paused)) {
+      this.stopBirthdaySong();
       return false;
     } else {
-      this.startAmbientMusic();
+      this.playBirthdaySong('./birthday-piano.mp3');
       return true;
     }
   }
@@ -258,10 +258,10 @@ class SoundEngine {
     osc.stop(now + 0.09);
   }
 
-  // Play Birthday Song from public folder (prioritizing /sound.mp3)
+  // Play Birthday Song from public folder (prioritizing new pleasant birthday-piano.mp3)
   playBirthdaySong(customUrl = null) {
     this.init();
-    // 1. Immediately cut off any previous ambient music
+    // 1. Immediately cut off any previous ambient synthesizer music
     this.stopAmbientMusic();
 
     if (this.customAudio) {
@@ -275,12 +275,10 @@ class SoundEngine {
 
     const candidateUrls = [
       customUrl,
+      './birthday-piano.mp3',
+      '/birthday-piano.mp3',
       './sound.mp3',
       '/sound.mp3',
-      './birthday-song.mp3',
-      '/birthday-song.mp3',
-      './song.mp3',
-      '/song.mp3',
     ].filter(Boolean);
 
     let currentIndex = 0;
@@ -293,13 +291,15 @@ class SoundEngine {
       const url = candidateUrls[currentIndex];
       currentIndex++;
       const audio = new Audio(url);
-      audio.volume = 0.9;
+      audio.volume = 0.85;
+      audio.loop = true;
       
       const playPromise = audio.play();
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
             this.customAudio = audio;
+            this.isPlayingMusic = true;
             // Stop synthesizer ambient if custom song is playing
             this.stopAmbientMusic();
           })
@@ -308,13 +308,19 @@ class SoundEngine {
           });
       } else {
         this.customAudio = audio;
+        this.isPlayingMusic = true;
       }
     };
 
     tryNext();
   }
 
+  isAudioActive() {
+    return this.isPlayingMusic || (this.customAudio && !this.customAudio.paused);
+  }
+
   stopBirthdaySong() {
+    this.isPlayingMusic = false;
     if (this.customAudio) {
       try {
         this.customAudio.pause();

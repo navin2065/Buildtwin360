@@ -25,26 +25,28 @@ const PenWritingIndicator = () => (
 );
 
 export default function BirthdaySurpriseCelebration({ onRestart }) {
-  const { celebration, grandfatherTribute, footer } = EXPERIENCE_CONFIG;
+  const { celebration, grandfatherLetter, grandfatherTribute, footer } = EXPERIENCE_CONFIG;
+  const tributeConfig = grandfatherLetter || grandfatherTribute;
 
   /**
    * Sequential Flow:
-   * 1. 'READY'           : Silent waiting screen. Clean 9:16 video frame with "SURPRISE".
+   * 1. 'READY'           : Silent waiting screen. Generous video frame with "SURPRISE".
    *                        NO butterflies, NO autoplay BGM.
    *                        Prominent "BLOW THE CANDLE" button below frame.
    * 2. 'FADING_SURPRISE' : Candle blow sound triggers, "SURPRISE" fades,
-   *                        golden butterflies fly across screen, BGM starts.
-   * 3. 'PLAYING'         : Full original video plays with object-fit: contain (no cropping);
-   *                        6 solo photos orbit in wide oval around frame.
-   * 4. 'TRIBUTE'         : Video ends -> Grandfather Tribute AUTOMATICALLY appears
-   *                        and types progressively word-by-word with pen indicator & sparkles.
+   *                        golden butterflies fly in from different areas, BGM starts.
+   * 3. 'PLAYING'         : Full original video plays with object-fit: contain (wider container, no cropping);
+   *                        6 larger solo photos orbit continuously in circular wheel-like motion.
+   * 4. 'TRIBUTE'         : Video ends -> Grandfather's Letter Section AUTOMATICALLY appears.
+   *                        Displays 16:9 photo (thatha.jpg) at top, followed by automatic
+   *                        word-by-word typewriter letter with pen indicator & sparkles.
    *                        Followed by character-by-character "Crafted by your Thambi, NAVIN".
    */
   const [phase, setPhase] = useState('READY');
   const [videoError, setVideoError] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Word-by-word state for Grandfather Tribute & character state for Footer
+  // Word-by-word state for Grandfather Letter & character state for Footer
   const [typedWords, setTypedWords] = useState(0);
   const [footerChars, setFooterChars] = useState(0);
 
@@ -68,9 +70,9 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
     };
   }, []);
 
-  // Grandfather Tribute word-by-word preparation
-  const tributeParagraphs = grandfatherTribute.paragraphs || [];
-  const tributeClosing = grandfatherTribute.closing || '';
+  // Grandfather Letter word-by-word preparation
+  const tributeParagraphs = tributeConfig.paragraphs || [];
+  const tributeClosing = tributeConfig.closing || '';
 
   const paragraphWordArrays = tributeParagraphs.map((p) =>
     p.trim().length > 0 ? p.trim().split(/\s+/) : []
@@ -101,13 +103,13 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
       soundEngine.playCandleBlow();
     }
 
-    // 2. Start configurable video BGM / audio in sync
+    // 2. Start video BGM in sync
     const videoBgm = celebration.birthdayVideoBgmSource || celebration.birthdayBgmSource;
     if (videoBgm) {
       soundEngine.playBirthdaySong(videoBgm);
     }
 
-    // 3. Fade "SURPRISE" and trigger golden butterflies
+    // 3. Fade "SURPRISE" and trigger golden butterflies flying in
     setPhase('FADING_SURPRISE');
 
     // 4. Reveal and autoplay complete birthday video
@@ -120,7 +122,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
     }, 850);
   };
 
-  // Video complete handler: onEnded -> transition automatically to Grandfather Tribute
+  // Video complete handler: onEnded -> transition automatically to Grandfather's Letter
   const handleVideoEnded = () => {
     soundEngine.stopBirthdaySong();
     soundEngine.playBellChime();
@@ -128,7 +130,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
     setTypedWords(1); // AUTOMATICALLY starts writing immediately
   };
 
-  // Tribute word-by-word typewriter effect (smooth natural handwriting pace: 110ms per word)
+  // Letter word-by-word typewriter effect (smooth natural handwriting pace: 110ms per word)
   useEffect(() => {
     if (phase !== 'TRIBUTE' || isTributeDone) return;
 
@@ -143,7 +145,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
     return () => clearTimeout(timer);
   }, [phase, isTributeDone, typedWords]);
 
-  // Footer character-by-character typewriter effect after tribute completes
+  // Footer character-by-character typewriter effect after letter completes
   useEffect(() => {
     if (!isTributeDone || isFooterDone) return;
 
@@ -154,13 +156,13 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
     return () => clearTimeout(timer);
   }, [isTributeDone, isFooterDone, footerChars]);
 
-  // Tap to reveal full tribute text immediately
+  // Tap to reveal full letter text immediately
   const handleSkipTributeTyping = () => {
     setTypedWords(totalTributeWords);
     setFooterChars(totalFooterChars);
   };
 
-  // Render tribute text progressively word-by-word
+  // Render letter text progressively word-by-word
   const renderTypedTribute = () => {
     let wordsLeft = typedWords;
 
@@ -213,7 +215,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
       {/* ─────────────────────────────────────────────────────────────
           BUTTERFLY ANIMATION — STRICTLY TRIGGER ONLY AFTER BLOW THE CANDLE
           In READY phase: completely absent.
-          After clicking: flies naturally across screen behind video frame (z-10).
+          After clicking: flies in naturally from different areas across the screen.
           ───────────────────────────────────────────────────────────── */}
       {phase !== 'READY' && (
         <GoldenButterflies
@@ -225,7 +227,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
 
       {/* ─────────────────────────────────────────────────────────────
           STAGES 5 & 6: VIDEO FRAME (SURPRISE REVEAL & PLAYBACK)
-          Preserves complete original video frame with object-fit: contain.
+          Wider container, complete video frame with object-fit: contain.
           No cropping of cake, faces, or hands.
           ───────────────────────────────────────────────────────────── */}
       {phase !== 'TRIBUTE' && (
@@ -239,30 +241,29 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
           </div>
 
           {/* ─────────────────────────────────────────────────────────
-              CENTER CONTAINER: COMPLETE VIDEO FRAME + ORBITING PHOTOS
+              CENTER CONTAINER: WIDER VIDEO FRAME + CIRCULAR ORBITING PHOTOS
               ───────────────────────────────────────────────────────── */}
           <div className="relative my-auto flex items-center justify-center w-full">
             
             {/* ─────────────────────────────────────────────────────
-                CIRCULAR / ELLIPTICAL ORBITING PHOTOS
-                Generous radius around video frame, never overlapping video.
+                PREVIOUS CONTINUOUS CIRCULAR WHEEL-LIKE ORBIT
+                Smooth continuous rotation, slightly bigger photos, zero overlap.
                 Strictly Arunadevi's solo photographs.
                 ───────────────────────────────────────────────────── */}
             {phase === 'PLAYING' && (
               <div
                 className="absolute rounded-full pointer-events-none z-10 flex items-center justify-center animate-orbit"
                 style={{
-                  width: isMobile ? '350px' : '480px',
-                  height: isMobile ? '350px' : '480px',
+                  width: isMobile ? '380px' : '520px',
+                  height: isMobile ? '380px' : '520px',
                 }}
               >
                 {orbitPhotos.map((photo, i) => {
                   const angle = (i * 360) / orbitPhotos.length;
-                  const radiusX = isMobile ? 138 : 205;
-                  const radiusY = isMobile ? 218 : 285;
+                  const radius = isMobile ? 175 : 240;
                   const rad = (angle * Math.PI) / 180;
-                  const x = Math.round(radiusX * Math.cos(rad));
-                  const y = Math.round(radiusY * Math.sin(rad));
+                  const x = Math.round(radius * Math.cos(rad));
+                  const y = Math.round(radius * Math.sin(rad));
 
                   return (
                     <div
@@ -270,7 +271,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
                       style={{
                         transform: `translate3d(${x}px, ${y}px, 0)`,
                       }}
-                      className="absolute w-10 h-13 xs:w-11 xs:h-14 sm:w-13 sm:h-16 rounded-xl overflow-hidden border border-gold-400/80 shadow-[0_4px_16px_rgba(0,0,0,0.85)] bg-stone-900 pointer-events-none"
+                      className="absolute w-12 h-16 xs:w-14 xs:h-18 sm:w-16 sm:h-21 rounded-xl overflow-hidden border-2 border-gold-400/80 shadow-[0_6px_22px_rgba(0,0,0,0.9)] bg-stone-900 pointer-events-none"
                     >
                       <div className="w-full h-full animate-orbit-counter">
                         <img
@@ -286,11 +287,11 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
             )}
 
             {/* ─────────────────────────────────────────────────────
-                THE COMPLETE 9:16 (478x850) ORIGINAL VIDEO CONTAINER
-                Using object-contain to display 100% of the video frame.
-                Zero cropping of top, bottom, cake, or faces.
+                THE WIDER COMPLETE VIDEO CONTAINER
+                Increased width on left and right, preserving full aspect ratio
+                using object-contain to display 100% of the video frame.
                 ───────────────────────────────────────────────────── */}
-            <div className="relative z-20 w-auto max-w-[80vw] xs:max-w-[74vw] sm:max-w-[320px] h-[52dvh] xs:h-[56dvh] sm:h-[62dvh] max-h-[520px] aspect-[478/850] rounded-2xl overflow-hidden bg-black/95 border-2 border-gold-400/80 shadow-[0_0_45px_rgba(212,175,55,0.45),0_25px_60px_rgba(0,0,0,0.95)] flex items-center justify-center">
+            <div className="relative z-20 w-[270px] xs:w-[300px] sm:w-[340px] md:w-[380px] max-w-[88vw] h-[430px] xs:h-[470px] sm:h-[510px] max-h-[58dvh] rounded-2xl overflow-hidden bg-black/95 border-2 border-gold-400/80 shadow-[0_0_45px_rgba(212,175,55,0.45),0_25px_60px_rgba(0,0,0,0.95)] flex items-center justify-center">
               
               {/* REAL VIDEO PLAYER (Full frame, object-contain, centered) */}
               {!videoError ? (
@@ -320,7 +321,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
                     onClick={handleVideoEnded}
                     className="mt-3 px-4 py-1.5 rounded-full bg-gold-500/30 text-gold-200 text-[10px]"
                   >
-                    Continue to Tribute →
+                    Continue to Letter →
                   </button>
                 </div>
               )}
@@ -386,29 +387,50 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          STAGES 6 & 7: GRANDFATHER TRIBUTE SECTION
-          Starts automatically when video completes: Progressive word-by-word typing.
+          STAGES 6 & 7: GRANDFATHER'S LETTER SECTION
+          16:9 Photograph of Grandfather (thatha.jpg) at the top.
+          Followed by automatic progressive word-by-word typing letter.
           Followed by separate signature: "Crafted by your Thambi, NAVIN".
           ───────────────────────────────────────────────────────────── */}
       {phase === 'TRIBUTE' && (
         <div
           onClick={handleSkipTributeTyping}
-          title="Tap anywhere to reveal full tribute"
+          title="Tap anywhere to reveal full letter"
           className="relative z-20 w-full h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center py-2 sm:py-4 px-3 sm:px-6 max-w-lg mx-auto cursor-pointer animate-fade-in"
         >
-          {/* Tribute Header */}
+          {/* Header */}
           <header className="text-center pt-1 shrink-0 w-full">
             <span className="font-cinzel text-[10px] sm:text-xs tracking-[0.25em] text-gold-400 uppercase font-semibold">
-              {grandfatherTribute.sectionTag}
+              {tributeConfig.sectionTag || "In Everlasting Love & Reverence"}
             </span>
             <h2 className="font-serif font-bold text-lg sm:text-2xl text-champagne-100 tracking-tight text-glow-gold mt-0.5">
-              {grandfatherTribute.title}
+              {tributeConfig.title || "A Tribute to Our Beloved Grandfather"}
             </h2>
           </header>
 
           {/* Traditional Ivory Parchment Paper (Matching Cover Letter Style) */}
-          <main className="relative w-full rounded-2xl bg-[#faf6ee] text-[#1b120c] p-4 xs:p-5 sm:p-7 shadow-[0_20px_60px_rgba(0,0,0,0.9)] border-3 border-[#d4af37]/60 my-auto flex flex-col justify-between min-h-[340px] xs:min-h-[380px] sm:min-h-[440px] max-h-[64dvh]">
+          <main className="relative w-full rounded-2xl bg-[#faf6ee] text-[#1b120c] p-4 xs:p-5 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.9)] border-3 border-[#d4af37]/60 my-auto flex flex-col justify-between min-h-[360px] xs:min-h-[400px] sm:min-h-[460px] max-h-[68dvh]">
             
+            {/* ─────────────────────────────────────────────────────────
+                16:9 ASPECT RATIO GRANDFATHER PHOTOGRAPH (thatha.jpg)
+                Display complete photograph without unnecessary cropping
+                ───────────────────────────────────────────────────────── */}
+            <div className="w-full max-w-[260px] xs:max-w-[290px] sm:max-w-[340px] aspect-[16/9] mx-auto rounded-xl overflow-hidden border-2 border-[#d4af37]/70 shadow-md bg-stone-900/10 shrink-0 mb-3 flex items-center justify-center">
+              <img
+                src="./images/thatha.jpg"
+                alt="Grandfather"
+                className="w-full h-full object-contain sm:object-cover"
+                onError={(e) => {
+                  // Fallback until user uploads thatha.jpg to public/images/
+                  e.target.style.display = 'none';
+                  const fallback = document.createElement('div');
+                  fallback.className = 'flex flex-col items-center justify-center text-center p-3 text-[#8f6e1b]';
+                  fallback.innerHTML = '<span class="text-2xl mb-1">🕊️</span><span class="font-cinzel text-[11px] font-bold uppercase tracking-wider">Our Beloved Grandfather</span>';
+                  e.target.parentElement.appendChild(fallback);
+                }}
+              />
+            </div>
+
             {/* Scrollable Letter Body (Internal Scroll Only) */}
             <div
               ref={tributeContainerRef}
@@ -465,7 +487,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
               </div>
             ) : (
               <p className="text-[10px] text-champagne-300/60 font-serif">
-                Tap anywhere to reveal full tribute
+                Tap anywhere to reveal full letter
               </p>
             )}
           </footer>

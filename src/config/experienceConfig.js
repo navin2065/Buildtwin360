@@ -28,13 +28,14 @@ export const EXPERIENCE_CONFIG = {
   },
 
   // ─────────────────────────────────────────────────────────────
-  // 2. STAGE 1: CONTACT QUESTION / SECRET WORD
+  // 2. STAGE 1: GUESS THE SECRET CODE
   // ─────────────────────────────────────────────────────────────
   secretEntry: {
     smallHeading: "A LITTLE SECRET BEFORE WE BEGIN",
-    mainHeading: "One little question...",
-    placeholder: "Enter the secret word...",
-    buttonText: "UNLOCK MY STORY →",
+    mainHeading: "Guess the Secret Code",
+    supportingText: "A little secret is waiting for you. Follow the hint and unlock your birthday surprise.",
+    placeholder: "Enter the Secret Code",
+    buttonText: "Unlock Surprise",
     secretWord: "aruna akkow",
     acceptedWords: ["aruna akkow"],
     errorMessage: "Not quite... Check the hint below!",
@@ -370,42 +371,57 @@ export const EXPERIENCE_CONFIG = {
     {
       id: "greeting",
       type: "greeting",
-      text: "My dear Akka,",
+      text: "Dear Akka,",
     },
     {
       id: "p1",
       type: "body",
-      text: "If I had to name one person who means the most to me in this world, it would always be you. No matter what happens in life—whether I am happy, troubled, confused, or facing a tough situation—you are always the first person I think of and the first person I reach out to.",
+      text: "Beyond my family, you are the first person who made me feel this comfortable and safe to share everything with. Apart from my mother and my own sister, I have never been this open with anyone else.",
     },
     {
       id: "p2",
       type: "body",
-      text: "You have always been my greatest pillar of support, someone with whom I can share absolutely anything without hesitation. From my studies to my career decisions, and through every small doubt, you have constantly encouraged me, believed in me, and helped me grow into who I am today.",
+      text: "I have never shared so much of myself with another person before. My happiness, sadness, problems, worries, and even the smallest things happening in my life — I have shared them with you without hesitation. You became someone with whom I could talk freely, without thinking twice.",
     },
     {
       id: "p3",
       type: "body",
-      text: "I still treasure the days of growing up together—our playful arguments, innocent secrets, late-night conversations, and laughter that echoed through our home. No matter how many years go by, you will forever remain my second mother first, my protector, and my safe haven.",
+      text: "I don't know exactly how or why this bond became so special to me. But somewhere along the way, you became like another elder sister in my life.",
     },
     {
       id: "p4",
       type: "body",
-      text: "You are far more than just an elder sister—you are my pride, my confidante, and my greatest blessing. Thank you for your patient heart, your quiet sacrifices, and your unconditional love that guides me every day.",
+      text: "Thank you for being part of my journey all this time. Thank you for listening to me, understanding me, and making me feel comfortable being myself.",
     },
     {
-      id: "banter",
-      type: "banter",
-      text: "To be completely honest, I rarely say all these emotional things out loud... if I did, you'd probably just burst out laughing and tease me! But it was truly in my heart, so I wanted to write it down for you here.",
+      id: "p5",
+      type: "body",
+      text: "Even today, I sometimes wonder why I do so many things for you or why I always want to do something special for you. Honestly, I don't have a perfect answer. I just know that I want to do it for you. Maybe it is simply because I see you as my own sister, and I care for you just like family.",
     },
     {
-      id: "closing",
-      type: "closing",
-      text: "Happy Birthday, Akka ❤️",
+      id: "p6",
+      type: "body",
+      text: "And one thing I want you to remember: You are not alone.",
+    },
+    {
+      id: "p7",
+      type: "body",
+      text: "Whatever situation you face, whatever problems come your way, I will always be there to stand beside you. Whether it is a problem at work, a difficult situation in life, or anything else, you can always count on me.",
+    },
+    {
+      id: "p8",
+      type: "body",
+      text: "Please don't be afraid of facing difficult times alone. I may not have a solution for everything, but I will always be there to support you and face things with you.",
+    },
+    {
+      id: "p9",
+      type: "body",
+      text: "Thank you for being my another sister, Akka. And thank you for this beautiful journey together.",
     },
     {
       id: "signoff",
       type: "signoff",
-      text: "Your Thambi, NAVIN",
+      text: "With love and respect,\nYour Thambi,\nNAVIN",
     },
   ],
 
@@ -417,9 +433,9 @@ export const EXPERIENCE_CONFIG = {
     blowButtonText: "BLOW THE CANDLE",
     videoSource: "./candle.mp4",
     aspectRatio: "9:16",
-    // Configurable audio assets (Silent before blowing; plays when candle is blown)
+    // Configurable audio assets (New pleasant instrumental BGM)
+    birthdayBgmSource: "./birthday-piano.mp3",
     birthdayVideoBgmSource: "./sound.mp3",
-    birthdayBgmSource: "./sound.mp3",
     candleBlowSoundSource: null, // Custom blow sound fallback
     // Selected orbiting memory photos: ONLY Arunadevi's solo photographs
     orbitPhotos: [
@@ -433,10 +449,29 @@ export const EXPERIENCE_CONFIG = {
   },
 
   // ─────────────────────────────────────────────────────────────
-  // 6. STAGE 6: GRANDFATHER TRIBUTE SECTION
-  // Automatic word-by-word typewriter + subtle sparkles
+  // 6. STAGE 6: GRANDFATHER'S LETTER SECTION
+  // Top 16:9 Photograph (public/images/thatha.jpg)
+  // Followed by automatic word-by-word typewriter letter
   // ─────────────────────────────────────────────────────────────
+  grandfatherLetter: {
+    photo: "./images/thatha.jpg",
+    sectionTag: "In Everlasting Love & Reverence",
+    title: "A Tribute to Our Beloved Grandfather",
+    // ─────────────────────────────────────────────────────────────
+    // EXACT PLACEHOLDER: The user will provide the actual Grandfather
+    // Tribute text in their next message. Add the text here!
+    // ─────────────────────────────────────────────────────────────
+    paragraphs: [
+      "To our dearest Thatha — Your presence was our sheltering tree, your gentle words were our guiding light, and your silent blessings remain the foundation of everything we achieve.",
+      "Though time has carried you into the quiet embrace of the stars, not a single milestone in our lives passes without feeling your loving hand placed upon our heads. We feel your warmth in our family's togetherness and your strength in the values you gave us.",
+      "On this special birthday, we honor your timeless memory, your noble dignity, and the boundless love you showered upon us all. You will forever live in our hearts, our prayers, and every step of our lives.",
+    ],
+    closing: "Forever loved, forever missed, forever our guardian angel.",
+  },
+
+  // Legacy alias for compatibility
   grandfatherTribute: {
+    photo: "./images/thatha.jpg",
     sectionTag: "In Everlasting Love & Reverence",
     title: "A Tribute to Our Beloved Grandfather",
     paragraphs: [

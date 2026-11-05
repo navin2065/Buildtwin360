@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { soundEngine } from '../utils/audio';
 import { EXPERIENCE_CONFIG } from '../config/experienceConfig';
 import GoldenButterflies from './GoldenButterflies';
@@ -8,15 +8,39 @@ export default function Screen1Opening({ onEnter }) {
 
   const [inputWord, setInputWord] = useState('');
   const [hasError, setHasError] = useState(false);
-  const [showHint, setShowHint] = useState(false);
+  const [showHint, setShowHint] = useState(true); // Small interesting hint clearly shown
   const [isUnlocking, setIsUnlocking] = useState(false);
   const [showButterflyAnimation, setShowButterflyAnimation] = useState(false);
   const [bookBlooming, setBookBlooming] = useState(false);
+
+  // Start pleasant birthday music on first user interaction (respecting browser autoplay policies)
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      soundEngine.init();
+      soundEngine.playBirthdaySong('./birthday-piano.mp3');
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('keydown', handleFirstInteraction);
+      window.removeEventListener('touchstart', handleFirstInteraction);
+    };
+
+    window.addEventListener('click', handleFirstInteraction, { once: true });
+    window.addEventListener('keydown', handleFirstInteraction, { once: true });
+    window.addEventListener('touchstart', handleFirstInteraction, { once: true });
+
+    return () => {
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('keydown', handleFirstInteraction);
+      window.removeEventListener('touchstart', handleFirstInteraction);
+    };
+  }, []);
 
   // Validate answer: ONLY "aruna akkow" (case-insensitive & whitespace trimmed)
   const handleUnlock = (e) => {
     if (e) e.preventDefault();
     if (isUnlocking) return;
+
+    soundEngine.init();
+    soundEngine.playBirthdaySong('./birthday-piano.mp3');
 
     const cleanedInput = inputWord.trim().toLowerCase();
     const primaryWord = (secretEntry.secretWord || 'aruna akkow').trim().toLowerCase();
@@ -32,9 +56,8 @@ export default function Screen1Opening({ onEnter }) {
       setIsUnlocking(true);
       setShowButterflyAnimation(true);
 
-      // Play bell chime & start ambient soundtrack
+      // Play bell chime & continue pleasant instrumental
       soundEngine.playBellChime();
-      soundEngine.startAmbientMusic();
 
       // 2. Butterfly flies gracefully into the glowing open book (1s)
       setTimeout(() => {
@@ -85,7 +108,7 @@ export default function Screen1Opening({ onEnter }) {
       <GoldenButterflies count={14} interactive={!isUnlocking} />
 
       {/* ─────────────────────────────────────────────────────────────
-          3. MAIN "THE SECRET WORD" CARD COMPOSITION
+          3. MAIN "GUESS THE SECRET CODE" CARD COMPOSITION
           Clean, minimal, luxurious, and distraction-free
           ───────────────────────────────────────────────────────────── */}
       <main className="relative z-30 flex flex-col items-center justify-center text-center px-4 max-w-lg w-full mx-auto my-auto py-2">
@@ -180,34 +203,36 @@ export default function Screen1Opening({ onEnter }) {
             hasError ? 'animate-shake border-red-500/50' : ''
           }`}
         >
-          {/* Small Heading */}
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <span className="h-[1px] w-6 bg-gradient-to-r from-transparent to-gold-400/70" />
-            <span className="font-cinzel text-[10px] sm:text-xs tracking-[0.24em] text-gold-400 uppercase font-semibold">
-              {secretEntry.smallHeading}
-            </span>
-            <span className="h-[1px] w-6 bg-gradient-to-l from-transparent to-gold-400/70" />
-          </div>
-
-          {/* Main Heading */}
-          <h1 className="font-serif font-bold text-3xl sm:text-4xl text-champagne-100 tracking-tight text-glow-gold mb-5">
-            {secretEntry.mainHeading}
+          {/* Main Heading: "Guess the Secret Code" */}
+          <h1 className="font-serif font-bold text-2xl sm:text-3xl md:text-4xl text-champagne-100 tracking-tight text-glow-gold mb-2">
+            {secretEntry.mainHeading || "Guess the Secret Code"}
           </h1>
+
+          {/* Supporting Text */}
+          <p className="font-serif text-xs sm:text-sm text-champagne-200/80 leading-relaxed max-w-sm mx-auto mb-4">
+            {secretEntry.supportingText || "A little secret is waiting for you. Follow the hint and unlock your birthday surprise."}
+          </p>
+
+          {/* Small Interesting Hint Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/15 border border-gold-400/30 text-gold-200 text-[11px] sm:text-xs font-serif mb-5 shadow-xs">
+            <span>💡</span>
+            <span>{secretEntry.hintText || "Hint: Think of how your name is saved in my phone contacts 📱"}</span>
+          </div>
 
           {/* ─────────────────────────────────────────────────────────
               MINIMAL INPUT & UNLOCK BUTTON
               ───────────────────────────────────────────────────────── */}
-          <form onSubmit={handleUnlock} className="flex flex-col items-center gap-4 max-w-sm mx-auto">
+          <form onSubmit={handleUnlock} className="flex flex-col items-center gap-3.5 max-w-sm mx-auto w-full">
             <div className="relative w-full">
               <input
                 type="text"
                 value={inputWord}
                 onChange={handleInputChange}
                 disabled={isUnlocking}
-                placeholder={secretEntry.placeholder}
+                placeholder={secretEntry.placeholder || "Enter the Secret Code"}
                 autoFocus
                 autoComplete="off"
-                className={`w-full px-5 py-3.5 rounded-full bg-forest-950/80 text-champagne-100 placeholder-champagne-300/40 text-center font-serif text-sm sm:text-base border transition-all duration-300 outline-none backdrop-blur-md shadow-inner ${
+                className={`w-full px-5 py-3 sm:py-3.5 rounded-full bg-forest-950/80 text-champagne-100 placeholder-champagne-300/40 text-center font-serif text-sm sm:text-base border transition-all duration-300 outline-none backdrop-blur-md shadow-inner ${
                   hasError
                     ? 'border-red-400/70 shadow-[0_0_15px_rgba(239,68,68,0.3)]'
                     : 'border-gold-500/40 focus:border-gold-400 focus:shadow-[0_0_20px_rgba(212,175,55,0.4)]'
@@ -215,7 +240,7 @@ export default function Screen1Opening({ onEnter }) {
               />
             </div>
 
-            {/* Unlock Button */}
+            {/* Unlock Button: "Unlock Surprise" */}
             <div className="relative group w-full">
               <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-gold-500 via-amber-300 to-gold-600 opacity-60 group-hover:opacity-100 blur-md transition duration-500 group-hover:scale-105 pointer-events-none" />
 
@@ -225,7 +250,7 @@ export default function Screen1Opening({ onEnter }) {
                 className="relative w-full px-8 py-3.5 rounded-full bg-gradient-to-r from-[#2c0e18]/90 via-[#1b120c]/95 to-[#0e1d15]/90 hover:from-[#3a1320] hover:to-[#172e22] text-champagne-100 font-serif tracking-[0.16em] uppercase text-xs sm:text-sm font-semibold border-2 border-gold-400/80 shadow-[inset_0_1px_8px_rgba(243,225,166,0.3),0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 <span className="text-gold-300 group-hover:text-gold-200 transition-colors">
-                  {isUnlocking ? 'Unlocking Story...' : secretEntry.buttonText}
+                  {isUnlocking ? 'Unlocking Surprise...' : (secretEntry.buttonText || "Unlock Surprise")}
                 </span>
                 <span className="text-gold-400 text-sm animate-pulse">✦</span>
               </button>
@@ -233,37 +258,15 @@ export default function Screen1Opening({ onEnter }) {
           </form>
 
           {/* ─────────────────────────────────────────────────────────
-              ERROR STATE & HINT INTERACTION
+              ERROR STATE
               ───────────────────────────────────────────────────────── */}
           {hasError && (
-            <div className="mt-4 p-3 rounded-xl bg-red-950/40 border border-red-500/30 animate-fade-in text-center">
+            <div className="mt-3 p-2.5 rounded-xl bg-red-950/40 border border-red-500/30 animate-fade-in text-center">
               <p className="font-serif text-xs text-rose-200/90 leading-snug">
-                {secretEntry.errorMessage}
+                {secretEntry.errorMessage || "Not quite... Check the hint above!"}
               </p>
             </div>
           )}
-
-          {/* Hint Trigger Button */}
-          <div className="mt-4 text-center">
-            {!showHint ? (
-              <button
-                type="button"
-                onClick={() => {
-                  soundEngine.playCardClick();
-                  setShowHint(true);
-                }}
-                className="text-xs font-serif text-gold-400/80 hover:text-gold-300 transition-colors underline underline-offset-4 cursor-pointer"
-              >
-                💡 {secretEntry.hintPrompt || 'Need a hint?'}
-              </button>
-            ) : (
-              <div className="p-3 rounded-xl bg-gold-500/10 border border-gold-500/30 animate-fade-in max-w-xs mx-auto">
-                <p className="font-serif text-xs text-gold-200 leading-snug">
-                  {secretEntry.hintText}
-                </p>
-              </div>
-            )}
-          </div>
         </div>
       </main>
 
