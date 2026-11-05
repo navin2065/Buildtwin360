@@ -41,12 +41,12 @@ export default function MemoriesGallery({ onNext }) {
     ? allMemories
     : allMemories.filter((mem) => mem.category === selectedCategory);
 
-  // Continuous right-to-left rotation every ~1.8 seconds (pausable on hover/touch)
+  // Auto-rotation every ~2.2 seconds (pauses when user clicks to inspect)
   useEffect(() => {
     if (isPaused || showIntro || filteredMemories.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % filteredMemories.length);
-    }, 1800);
+    }, 2200);
 
     return () => clearInterval(interval);
   }, [isPaused, showIntro, filteredMemories.length]);
@@ -70,7 +70,6 @@ export default function MemoriesGallery({ onNext }) {
   // Touch Swipe for mobile devices
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
-    setIsPaused(true);
   };
 
   const handleTouchMove = (e) => {
@@ -78,7 +77,6 @@ export default function MemoriesGallery({ onNext }) {
   };
 
   const handleTouchEnd = () => {
-    setIsPaused(false);
     const diff = touchStartX.current - touchEndX.current;
     if (Math.abs(diff) > 40) {
       if (diff > 0) {
@@ -94,8 +92,12 @@ export default function MemoriesGallery({ onNext }) {
   return (
     <div
       className="fixed inset-0 h-[100dvh] max-h-[100dvh] w-full bg-[#070e0a] text-champagne-100 flex flex-col justify-between items-center py-2 sm:py-4 px-2 sm:px-6 select-none overflow-hidden z-30"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      onClick={() => {
+        // Clicking outside any photo resumes animation
+        if (isPaused) {
+          setIsPaused(false);
+        }
+      }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -190,10 +192,16 @@ export default function MemoriesGallery({ onNext }) {
                 return (
                   <div
                     key={mem.id}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      soundEngine.playCardClick();
                       if (!isCenter) {
-                        soundEngine.playCardClick();
+                        // Center the selected photo and pause for inspection
                         setCurrentIndex(index);
+                        setIsPaused(true);
+                      } else {
+                        // Clicking center photo toggles pause/resume
+                        setIsPaused((prev) => !prev);
                       }
                     }}
                     style={{

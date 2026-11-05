@@ -29,15 +29,15 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
   const tributeConfig = grandfatherLetter || grandfatherTribute;
 
   /**
-   * Sequential Flow:
-   * 1. 'READY'           : Silent waiting screen. Generous video frame with "SURPRISE".
-   *                        NO butterflies, NO autoplay BGM.
+   * EXACT THREE-STAGE AUDIO & VIDEO FLOW:
+   * 1. 'READY'           : Silent waiting screen. Snug 478:850 frame with "SURPRISE".
+   *                        NO butterflies, NO autoplay BGM (Screen remains silent).
    *                        Prominent "BLOW THE CANDLE" button below frame.
    * 2. 'FADING_SURPRISE' : Candle blow sound triggers, "SURPRISE" fades,
-   *                        golden butterflies fly in from different areas, BGM starts.
-   * 3. 'PLAYING'         : Full original video plays with object-fit: contain (wider container, no cropping);
+   *                        golden butterflies fly in, Stage 2 (public/sound.mp3) plays in sync with video.
+   * 3. 'PLAYING'         : Full original video plays with zero black side gaps;
    *                        6 larger solo photos orbit continuously in circular wheel-like motion.
-   * 4. 'TRIBUTE'         : Video ends -> Grandfather's Letter Section AUTOMATICALLY appears.
+   * 4. 'TRIBUTE'         : Video ends -> sound.mp3 STOPS, Stage 3 (public/sound2.mp3) STARTS.
    *                        Displays 16:9 photo (thatha.jpg) at top, followed by automatic
    *                        word-by-word typewriter letter with pen indicator & sparkles.
    *                        Followed by character-by-character "Crafted by your Thambi, NAVIN".
@@ -92,22 +92,16 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
   // Selected orbiting photos: ONLY Arunadevi's solo photographs
   const orbitPhotos = celebration.orbitPhotos || [];
 
-  // User clicks "BLOW THE CANDLE"
+  // User clicks "BLOW THE CANDLE" -> Start STAGE 2 Audio (public/sound.mp3)
   const handleBlowCandle = () => {
     if (phase !== 'READY') return;
 
     // 1. Play candle blow sound
-    if (celebration.candleBlowSoundSource) {
-      soundEngine.playBirthdaySong(celebration.candleBlowSoundSource);
-    } else {
-      soundEngine.playCandleBlow();
-    }
+    soundEngine.playCandleBlow();
 
-    // 2. Start video BGM in sync
-    const videoBgm = celebration.birthdayVideoBgmSource || celebration.birthdayBgmSource;
-    if (videoBgm) {
-      soundEngine.playBirthdaySong(videoBgm);
-    }
+    // 2. STAGE 2: Start public/sound.mp3 in sync with video
+    soundEngine.stopBirthdaySong();
+    soundEngine.playBirthdaySong('./sound.mp3');
 
     // 3. Fade "SURPRISE" and trigger golden butterflies flying in
     setPhase('FADING_SURPRISE');
@@ -122,12 +116,18 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
     }, 850);
   };
 
-  // Video complete handler: onEnded -> transition automatically to Grandfather's Letter
+  // Video complete handler: onEnded -> STAGE 3 Audio (public/sound2.mp3) + Grandfather Tribute
   const handleVideoEnded = () => {
+    // 1. Stop Stage 2 sound.mp3
     soundEngine.stopBirthdaySong();
     soundEngine.playBellChime();
+
+    // 2. STAGE 3: Start public/sound2.mp3 for Grandfather Tribute
+    soundEngine.playBirthdaySong('./sound2.mp3');
+
+    // 3. Transition to Grandfather's Letter and start typing immediately
     setPhase('TRIBUTE');
-    setTypedWords(1); // AUTOMATICALLY starts writing immediately
+    setTypedWords(1);
   };
 
   // Letter word-by-word typewriter effect (smooth natural handwriting pace: 110ms per word)
@@ -227,8 +227,8 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
 
       {/* ─────────────────────────────────────────────────────────────
           STAGES 5 & 6: VIDEO FRAME (SURPRISE REVEAL & PLAYBACK)
-          Wider container, complete video frame with object-fit: contain.
-          No cropping of cake, faces, or hands.
+          Precise 478:850 frame to completely eliminate black side gaps.
+          Zero cropping, faces, hands, and cake completely visible.
           ───────────────────────────────────────────────────────────── */}
       {phase !== 'TRIBUTE' && (
         <div className="relative z-20 w-full h-full flex flex-col justify-between items-center py-2 sm:py-4 px-3 max-w-lg mx-auto animate-fade-in">
@@ -241,7 +241,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
           </div>
 
           {/* ─────────────────────────────────────────────────────────
-              CENTER CONTAINER: WIDER VIDEO FRAME + CIRCULAR ORBITING PHOTOS
+              CENTER CONTAINER: VIDEO FRAME + CIRCULAR ORBITING PHOTOS
               ───────────────────────────────────────────────────────── */}
           <div className="relative my-auto flex items-center justify-center w-full">
             
@@ -287,13 +287,13 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
             )}
 
             {/* ─────────────────────────────────────────────────────
-                THE WIDER COMPLETE VIDEO CONTAINER
-                Increased width on left and right, preserving full aspect ratio
-                using object-contain to display 100% of the video frame.
+                THE SNUG 478:850 VIDEO CONTAINER (NO BLACK SIDE GAPS)
+                Matches exact 478:850 video aspect ratio so the video
+                fills 100% of the frame without any left/right pillarbox bars.
                 ───────────────────────────────────────────────────── */}
-            <div className="relative z-20 w-[270px] xs:w-[300px] sm:w-[340px] md:w-[380px] max-w-[88vw] h-[430px] xs:h-[470px] sm:h-[510px] max-h-[58dvh] rounded-2xl overflow-hidden bg-black/95 border-2 border-gold-400/80 shadow-[0_0_45px_rgba(212,175,55,0.45),0_25px_60px_rgba(0,0,0,0.95)] flex items-center justify-center">
+            <div className="relative z-20 aspect-[478/850] w-auto h-[52dvh] xs:h-[56dvh] sm:h-[60dvh] max-h-[540px] max-w-[90vw] rounded-2xl overflow-hidden bg-black border-2 border-gold-400/80 shadow-[0_0_45px_rgba(212,175,55,0.45),0_25px_60px_rgba(0,0,0,0.95)] flex items-center justify-center">
               
-              {/* REAL VIDEO PLAYER (Full frame, object-contain, centered) */}
+              {/* REAL VIDEO PLAYER (Fills frame edge-to-edge, zero black bars) */}
               {!videoError ? (
                 <video
                   ref={videoRef}
@@ -305,7 +305,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
                     setVideoError(true);
                     setTimeout(handleVideoEnded, 5000);
                   }}
-                  className={`w-full h-full object-contain transition-opacity duration-700 ${
+                  className={`w-full h-full object-cover transition-opacity duration-700 block ${
                     phase === 'PLAYING' ? 'opacity-100' : 'opacity-0 pointer-events-none'
                   }`}
                 >
@@ -388,6 +388,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
 
       {/* ─────────────────────────────────────────────────────────────
           STAGES 6 & 7: GRANDFATHER'S LETTER SECTION
+          Plays public/sound2.mp3 during this stage.
           16:9 Photograph of Grandfather (thatha.jpg) at the top.
           Followed by automatic progressive word-by-word typing letter.
           Followed by separate signature: "Crafted by your Thambi, NAVIN".
@@ -464,6 +465,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
+                    soundEngine.stopBirthdaySong();
                     soundEngine.playCardClick();
                     setPhase('READY');
                     setTypedWords(0);
@@ -477,6 +479,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
+                    soundEngine.stopBirthdaySong();
                     soundEngine.playCardClick();
                     onRestart?.();
                   }}

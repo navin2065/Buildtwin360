@@ -258,10 +258,10 @@ class SoundEngine {
     osc.stop(now + 0.09);
   }
 
-  // Play Birthday Song from public folder (prioritizing new pleasant birthday-piano.mp3)
+  // Play Birthday Song from public folder according to the strict 3-stage audio architecture
   playBirthdaySong(customUrl = null) {
     this.init();
-    // 1. Immediately cut off any previous ambient synthesizer music
+    // 1. Immediately cut off any previous audio
     this.stopAmbientMusic();
 
     if (this.customAudio) {
@@ -271,21 +271,21 @@ class SoundEngine {
       } catch (_err) {
         // ignore
       }
+      this.customAudio = null;
     }
 
-    const candidateUrls = [
-      customUrl,
-      './birthday-piano.mp3',
-      '/birthday-piano.mp3',
-      './sound.mp3',
-      '/sound.mp3',
-    ].filter(Boolean);
+    // Determine targeted track without cross-stage fallback pollution
+    let candidateUrls = [];
+    if (customUrl) {
+      const rootUrl = customUrl.startsWith('.') ? customUrl.slice(1) : customUrl;
+      candidateUrls = [customUrl, rootUrl];
+    } else {
+      candidateUrls = ['./birthday-piano.mp3', '/birthday-piano.mp3'];
+    }
 
     let currentIndex = 0;
     const tryNext = () => {
       if (currentIndex >= candidateUrls.length) {
-        // Fallback to built-in ambient synthesizer if no file found
-        this.startAmbientMusic();
         return;
       }
       const url = candidateUrls[currentIndex];
@@ -300,8 +300,6 @@ class SoundEngine {
           .then(() => {
             this.customAudio = audio;
             this.isPlayingMusic = true;
-            // Stop synthesizer ambient if custom song is playing
-            this.stopAmbientMusic();
           })
           .catch(() => {
             tryNext();

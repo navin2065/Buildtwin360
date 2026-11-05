@@ -28,19 +28,17 @@ export const EXPERIENCE_CONFIG = {
   },
 
   // ─────────────────────────────────────────────────────────────
-  // 2. STAGE 1: GUESS THE SECRET CODE
+  // 2. STAGE 1: PASSWORD ENTRY
   // ─────────────────────────────────────────────────────────────
   secretEntry: {
-    smallHeading: "A LITTLE SECRET BEFORE WE BEGIN",
-    mainHeading: "Guess the Secret Code",
-    supportingText: "A little secret is waiting for you. Follow the hint and unlock your birthday surprise.",
-    placeholder: "Enter the Secret Code",
-    buttonText: "Unlock Surprise",
+    mainHeading: "Welcome to Your Birthday Surprise",
+    placeholder: "Enter the Password",
+    buttonText: "Continue",
     secretWord: "aruna akkow",
     acceptedWords: ["aruna akkow"],
     errorMessage: "Not quite... Check the hint below!",
-    hintPrompt: "Need a hint?",
-    hintText: "Think of how your name is saved in my phone contacts 📱",
+    hintPrompt: "Need a Hint?",
+    hintText: "Type how I have saved your contact in my mobile.",
     backgroundImage: "./chapter-forest.png",
   },
 
@@ -426,16 +424,20 @@ export const EXPERIENCE_CONFIG = {
   ],
 
   // ─────────────────────────────────────────────────────────────
-  // 5. STAGE 5: BIRTHDAY CELEBRATION & CONFIGURABLE AUDIO
+  // 5. STAGE 5: BIRTHDAY CELEBRATION & THREE-STAGE AUDIO
   // ─────────────────────────────────────────────────────────────
   celebration: {
     surpriseWord: "SURPRISE",
     blowButtonText: "BLOW THE CANDLE",
     videoSource: "./candle.mp4",
-    aspectRatio: "9:16",
-    // Configurable audio assets (New pleasant instrumental BGM)
-    birthdayBgmSource: "./birthday-piano.mp3",
+    aspectRatio: "478/850",
+    // EXACT THREE STAGES AUDIO
+    // Stage 1: Opening, Password, Memories & Cover Letter
+    openingBgmSource: "./birthday-piano.mp3",
+    // Stage 2: Blow the Candle & Birthday Video
     birthdayVideoBgmSource: "./sound.mp3",
+    // Stage 3: Grandfather Tribute
+    grandfatherBgmSource: "./sound2.mp3",
     candleBlowSoundSource: null, // Custom blow sound fallback
     // Selected orbiting memory photos: ONLY Arunadevi's solo photographs
     orbitPhotos: [
@@ -452,9 +454,11 @@ export const EXPERIENCE_CONFIG = {
   // 6. STAGE 6: GRANDFATHER'S LETTER SECTION
   // Top 16:9 Photograph (public/images/thatha.jpg)
   // Followed by automatic word-by-word typewriter letter
+  // Plays public/sound2.mp3 during this stage
   // ─────────────────────────────────────────────────────────────
   grandfatherLetter: {
     photo: "./images/thatha.jpg",
+    bgmSource: "./sound2.mp3",
     sectionTag: "In Everlasting Love & Reverence",
     title: "A Tribute to Our Beloved Grandfather",
     // ─────────────────────────────────────────────────────────────
