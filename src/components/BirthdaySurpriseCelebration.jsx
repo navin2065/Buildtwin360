@@ -466,19 +466,20 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
           <main className="relative w-full rounded-2xl bg-[#faf6ee] text-[#1b120c] p-3.5 xs:p-4 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.9)] border-3 border-[#d4af37]/60 my-auto flex flex-col flex-1 min-h-0 max-h-[70dvh] sm:max-h-[72dvh] overflow-hidden">
             
             {/* ─────────────────────────────────────────────────────────
-                1. GRANDFATHER PHOTO – PRESERVE EXACTLY (STATIONARY AT TOP)
-                16:9 aspect ratio, fixed in position while letter scrolls
+                1. GRANDFATHER PHOTO – ACCURATE 16:9 FRAME WITH ZERO GAPS
+                Fits neatly inside frame without empty spaces or distortion
+                Stationary at top of parchment; letter scrolls below
                 ───────────────────────────────────────────────────────── */}
-            <div className="w-full max-w-[260px] xs:max-w-[290px] sm:max-w-[340px] aspect-[16/9] mx-auto rounded-xl overflow-hidden border-2 border-[#d4af37]/70 shadow-md bg-stone-900/10 shrink-0 mb-3 flex items-center justify-center">
+            <div className="w-full max-w-[280px] xs:max-w-[320px] sm:max-w-[360px] aspect-[16/9] mx-auto rounded-xl overflow-hidden border-2 border-[#d4af37]/80 shadow-md shrink-0 mb-2.5 sm:mb-3 relative bg-[#faf6ee]">
               <img
                 src="./images/thatha.jpg"
                 alt="Grandfather"
-                className="w-full h-full object-contain sm:object-cover"
+                className="w-full h-full object-cover object-center block"
                 onError={(e) => {
                   // Fallback until user uploads thatha.jpg to public/images/
                   e.target.style.display = 'none';
                   const fallback = document.createElement('div');
-                  fallback.className = 'flex flex-col items-center justify-center text-center p-3 text-[#8f6e1b]';
+                  fallback.className = 'w-full h-full flex flex-col items-center justify-center text-center p-3 text-[#8f6e1b]';
                   fallback.innerHTML = '<span class="text-2xl mb-1">🕊️</span><span class="font-cinzel text-[11px] font-bold uppercase tracking-wider">Our Beloved Grandfather</span>';
                   e.target.parentElement.appendChild(fallback);
                 }}

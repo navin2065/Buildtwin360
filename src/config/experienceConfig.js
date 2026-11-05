@@ -374,52 +374,82 @@ export const EXPERIENCE_CONFIG = {
     {
       id: "p1",
       type: "body",
-      text: "Beyond my family, you are the first person who made me feel this comfortable and safe to share everything with. Apart from my mother and my own sister, I have never been this open with anyone else.",
+      text: "Beyond my family, you are the first person who has made me feel this comfortable and safe sharing everything about myself. Apart from my mother and my own sister, I have never been this open with anyone else.",
     },
     {
       id: "p2",
       type: "body",
-      text: "I have never shared so much of myself with another person before. My happiness, sadness, problems, worries, and even the smallest things happening in my life — I have shared them with you without hesitation. You became someone with whom I could talk freely, without thinking twice.",
+      text: "I have never shared so much of myself with another person before. My happiness, sadness, problems, worries, random thoughts, and even the smallest things happening in my life — I have shared them all with you without hesitation. You became someone I could talk to freely, without having to think twice about what to say or how to say it.",
     },
     {
       id: "p3",
       type: "body",
-      text: "I don't know exactly how or why this bond became so special to me. But somewhere along the way, you became like another elder sister in my life.",
+      text: "I don't know exactly when or how this bond became so special to me. But somewhere along the way, you became more than just a colleague or a friend. You became like another elder sister in my life — someone I genuinely care about, trust, and feel grateful to have.",
     },
     {
       id: "p4",
       type: "body",
-      text: "Thank you for being part of my journey all this time. Thank you for listening to me, understanding me, and making me feel comfortable being myself.",
+      text: "Sometimes, it is not the big things that make a relationship special. It is the little conversations, random laughs, silly moments, and simple memories that stay in our hearts forever. Even the ordinary moments we have shared have become beautiful memories to me, and I will always cherish them.",
     },
     {
       id: "p5",
       type: "body",
-      text: "Even today, I sometimes wonder why I do so many things for you or why I always want to do something special for you. Honestly, I don't have a perfect answer. I just know that I want to do it for you. Maybe it is simply because I see you as my own sister, and I care for you just like family.",
+      text: "Thank you for being part of my journey all this time. Thank you for listening to me, understanding me, guiding me, and making me feel comfortable being myself. You may not realise it, but your presence has made many ordinary days in my life feel a little more special.",
     },
     {
       id: "p6",
       type: "body",
-      text: "And one thing I want you to remember: You are not alone.",
+      text: "Even today, I sometimes wonder why I do so many things for you or why I always want to do something special for you. Honestly, I don't have a perfect answer. I just know that I genuinely want to do it for you. Maybe it is simply because I see you as my own sister, and I care for you just like family. Your happiness matters to me, and seeing you smile makes me happy too.",
+    },
+    {
+      id: "p-apology",
+      type: "body",
+      text: "There is one more thing I want to tell you from the bottom of my heart. I know there may have been times when my words or actions hurt you, even when I never intended them to. Sometimes, what I try to express may come across differently from what I actually feel. But please believe me, whatever I have said or shared with you, I have never said it with the intention of hurting you. Whatever I have tried to tell you, I have always meant it for your good and because I genuinely care about you. Maybe my choice of words or the way I express my thoughts has sometimes made things sound different from what I truly meant. I may not always express myself perfectly, and I know there may have been moments when I failed to make you understand my intentions. But I have never wanted anything bad for you. In everything I do, I always think about how you might feel and try my best not to do anything that could hurt you. If I have ever hurt you in any way, I am truly sorry, Akka. It was never what my heart intended. I hope you will always understand the care, concern, and respect I have for you.",
     },
     {
       id: "p7",
       type: "body",
-      text: "Whatever situation you face, whatever problems come your way, I will always be there to stand beside you. Whether it is a problem at work, a difficult situation in life, or anything else, you can always count on me.",
+      text: "And one thing I want you to remember: You are never alone.",
     },
     {
       id: "p8",
       type: "body",
-      text: "Please don't be afraid of facing difficult times alone. I may not have a solution for everything, but I will always be there to support you and face things with you.",
+      text: "Whatever situation you face, whatever problems come your way, I will always be there to stand beside you. Whether it is a problem at work, a difficult situation in life, or a moment when you simply need someone to listen, you can always count on me.",
     },
     {
       id: "p9",
       type: "body",
-      text: "Thank you for being my another sister, Akka. And thank you for this beautiful journey together.",
+      text: "Please don't be afraid of facing difficult times alone. I may not have a solution for everything, and I may not always know the right words to say, but I will always be there to support you, listen to you, and face things with you. You don't have to pretend to be strong all the time. Even on your difficult days, you can always be yourself with me.",
+    },
+    {
+      id: "p10",
+      type: "body",
+      text: "And no matter how much life changes, one thing will never change — the bond I share with you. I may not be able to make every day perfect for you, but I will always try to bring a smile to your face whenever I can. You will always have a Thambi who cares for you, believes in you, supports you, and wishes nothing but the best for you.",
+    },
+    {
+      id: "p11",
+      type: "body",
+      text: "On your birthday, I don't wish you just happiness for one day. I wish you a lifetime filled with peace, good health, confidence, success, and countless reasons to smile. May you achieve everything your heart dreams of. May every new chapter of your life bring you beautiful opportunities, wonderful memories, and all the happiness you deserve.",
+    },
+    {
+      id: "p12",
+      type: "body",
+      text: "Finally, I just want to say that I am truly happy and grateful that I got someone like you in my life. Not every special bond needs a name or an explanation. Some relationships simply become a beautiful part of our lives, and for me, you are one of them.",
+    },
+    {
+      id: "p13",
+      type: "body",
+      text: "Thank you for being my another sister, Akka. Thank you for all the memories, all the conversations, and this beautiful journey together.",
+    },
+    {
+      id: "closing",
+      type: "closing",
+      text: "Happy Birthday, Akka! Keep smiling, keep shining, and always be happy.",
     },
     {
       id: "signoff",
       type: "signoff",
-      text: "With love and respect,\nYour Thambi,\nNAVIN",
+      text: "With love and respect,\nYour Thambi,\nNAVIN ❤️",
     },
   ],
 

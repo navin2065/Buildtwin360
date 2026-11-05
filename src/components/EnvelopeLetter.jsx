@@ -122,7 +122,7 @@ export default function EnvelopeLetter({ onNext }) {
       if (section.type === 'closing') {
         return (
           <div key={section.id} className="pt-2 text-right">
-            <p className="font-handwritten text-xl sm:text-2xl md:text-3xl text-[#8f6e1b] font-bold tracking-wide">
+            <p className="font-handwritten text-lg sm:text-xl md:text-2xl text-[#8f6e1b] font-bold tracking-wide">
               {displayedText}
               {isCurrentlyTyping && <PenWritingIndicator />}
             </p>
@@ -206,6 +206,10 @@ export default function EnvelopeLetter({ onNext }) {
           <div
             ref={scrollRef}
             className="flex-1 overflow-y-auto no-scrollbar scroll-smooth pr-1 select-text space-y-2.5 my-1"
+            style={{
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-y',
+            }}
           >
             {renderLetterContent()}
           </div>
