@@ -461,29 +461,50 @@ export const EXPERIENCE_CONFIG = {
     bgmSource: "./sound2.mp3",
     sectionTag: "In Everlasting Love & Reverence",
     title: "A Tribute to Our Beloved Grandfather",
-    // ─────────────────────────────────────────────────────────────
-    // EXACT PLACEHOLDER: The user will provide the actual Grandfather
-    // Tribute text in their next message. Add the text here!
-    // ─────────────────────────────────────────────────────────────
     paragraphs: [
-      "To our dearest Thatha — Your presence was our sheltering tree, your gentle words were our guiding light, and your silent blessings remain the foundation of everything we achieve.",
-      "Though time has carried you into the quiet embrace of the stars, not a single milestone in our lives passes without feeling your loving hand placed upon our heads. We feel your warmth in our family's togetherness and your strength in the values you gave us.",
-      "On this special birthday, we honor your timeless memory, your noble dignity, and the boundless love you showered upon us all. You will forever live in our hearts, our prayers, and every step of our lives.",
+      "My Dear Granddaughter ❤️",
+      "The Happiest Birthday to You, My Dear Granddaughter!",
+      "My dear little one,",
+      "If I were beside you right now, I would hold your hands, look into your eyes, and wish you a very happy birthday with all the love in my heart.",
+      "You may not be able to see me standing beside you, but never think that I am far away from you. I am always with you, in every step you take, in every smile you share, and in every moment of your life.",
+      "And listen to me carefully, my dear…",
+      "Never feel that you are alone just because you cannot see me. I am still with you, and I will always be a part of your life. So please, don't spend your days worrying about my absence. Whenever you miss me, remember the love and beautiful memories we shared.",
+      "I want to see you happy. I want to see you smiling, laughing, and living your life without fear. Whatever situation life brings you, face it bravely. Don't lose hope when things become difficult. Be strong, think wisely, and make your decisions with confidence. You are stronger than you think, and I believe in you.",
+      "There may be days when you feel tired, when things don't happen the way you expect, or when you feel like giving up. On those days, take a deep breath, wipe your tears, and remind yourself that you can get through anything. Don't let one difficult day take away your beautiful smile.",
+      "Always respect yourself, value your happiness, and never forget how special you are. Choose what makes your heart peaceful. Keep growing, keep learning, and keep chasing your dreams. I will always be proud of the person you are becoming.",
+      "And one more thing, my dear granddaughter… Never think that you have to face everything alone. Whenever you look at the sky, remember that the love I have for you will always remain in your heart. No distance, no time, and no situation can change that bond.",
+      "Today is your special day. So smile a little more, laugh a little louder, enjoy every moment, and make beautiful memories. That is the birthday gift I would wish for you.",
+      "Happy Birthday once again, my precious granddaughter!",
+      "Keep smiling, stay brave, and always be happy.",
+      "With endless love and blessings,\nYour Thatha ❤️",
     ],
-    closing: "Forever loved, forever missed, forever our guardian angel.",
+    closing: "",
   },
 
   // Legacy alias for compatibility
   grandfatherTribute: {
     photo: "./images/thatha.jpg",
+    bgmSource: "./sound2.mp3",
     sectionTag: "In Everlasting Love & Reverence",
     title: "A Tribute to Our Beloved Grandfather",
     paragraphs: [
-      "To our dearest Thatha — Your presence was our sheltering tree, your gentle words were our guiding light, and your silent blessings remain the foundation of everything we achieve.",
-      "Though time has carried you into the quiet embrace of the stars, not a single milestone in our lives passes without feeling your loving hand placed upon our heads. We feel your warmth in our family's togetherness and your strength in the values you gave us.",
-      "On this special birthday, we honor your timeless memory, your noble dignity, and the boundless love you showered upon us all. You will forever live in our hearts, our prayers, and every step of our lives.",
+      "My Dear Granddaughter ❤️",
+      "The Happiest Birthday to You, My Dear Granddaughter!",
+      "My dear little one,",
+      "If I were beside you right now, I would hold your hands, look into your eyes, and wish you a very happy birthday with all the love in my heart.",
+      "You may not be able to see me standing beside you, but never think that I am far away from you. I am always with you, in every step you take, in every smile you share, and in every moment of your life.",
+      "And listen to me carefully, my dear…",
+      "Never feel that you are alone just because you cannot see me. I am still with you, and I will always be a part of your life. So please, don't spend your days worrying about my absence. Whenever you miss me, remember the love and beautiful memories we shared.",
+      "I want to see you happy. I want to see you smiling, laughing, and living your life without fear. Whatever situation life brings you, face it bravely. Don't lose hope when things become difficult. Be strong, think wisely, and make your decisions with confidence. You are stronger than you think, and I believe in you.",
+      "There may be days when you feel tired, when things don't happen the way you expect, or when you feel like giving up. On those days, take a deep breath, wipe your tears, and remind yourself that you can get through anything. Don't let one difficult day take away your beautiful smile.",
+      "Always respect yourself, value your happiness, and never forget how special you are. Choose what makes your heart peaceful. Keep growing, keep learning, and keep chasing your dreams. I will always be proud of the person you are becoming.",
+      "And one more thing, my dear granddaughter… Never think that you have to face everything alone. Whenever you look at the sky, remember that the love I have for you will always remain in your heart. No distance, no time, and no situation can change that bond.",
+      "Today is your special day. So smile a little more, laugh a little louder, enjoy every moment, and make beautiful memories. That is the birthday gift I would wish for you.",
+      "Happy Birthday once again, my precious granddaughter!",
+      "Keep smiling, stay brave, and always be happy.",
+      "With endless love and blessings,\nYour Thatha ❤️",
     ],
-    closing: "Forever loved, forever missed, forever our guardian angel.",
+    closing: "",
   },
 
   // ─────────────────────────────────────────────────────────────

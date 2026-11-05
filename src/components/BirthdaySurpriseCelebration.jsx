@@ -72,18 +72,35 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
 
   // Grandfather Letter word-by-word preparation
   const tributeParagraphs = tributeConfig.paragraphs || [];
-  const tributeClosing = tributeConfig.closing || '';
 
-  const paragraphWordArrays = tributeParagraphs.map((p) =>
-    p.trim().length > 0 ? p.trim().split(/\s+/) : []
-  );
-  const closingWordArrays =
-    tributeClosing.trim().length > 0 ? tributeClosing.trim().split(/\s+/) : [];
+  // Parse paragraphs, lines, and words to preserve newlines and count tokens
+  const tributeParsed = React.useMemo(() => {
+    let wordCounter = 0;
+    return tributeParagraphs.map((p, pIdx) => {
+      const rawLines = p.split('\n');
+      const lines = rawLines.map((line) => {
+        return line.trim().length > 0 ? line.trim().split(/\s+/) : [];
+      });
+      const paragraphWordCount = lines.reduce((acc, words) => acc + words.length, 0);
+      const startWordIndex = wordCounter + 1;
+      wordCounter += paragraphWordCount;
+      const endWordIndex = wordCounter;
 
-  const totalTributeWords =
-    paragraphWordArrays.reduce((sum, words) => sum + words.length, 0) + closingWordArrays.length;
+      return {
+        pIdx,
+        lines,
+        paragraphWordCount,
+        startWordIndex,
+        endWordIndex,
+      };
+    });
+  }, [tributeParagraphs]);
 
-  const footerText = footer.craftedBy || 'Crafted by your Thambi, NAVIN';
+  const totalTributeWords = React.useMemo(() => {
+    return tributeParsed.reduce((acc, p) => acc + p.paragraphWordCount, 0);
+  }, [tributeParsed]);
+
+  const footerText = footer?.craftedBy || 'Crafted by your Thambi, NAVIN';
   const totalFooterChars = footerText.length;
 
   const isTributeDone = typedWords >= totalTributeWords;
@@ -128,22 +145,35 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
     // 3. Transition to Grandfather's Letter and start typing immediately
     setPhase('TRIBUTE');
     setTypedWords(1);
+    setFooterChars(0);
   };
 
-  // Letter word-by-word typewriter effect (smooth natural handwriting pace: 110ms per word)
+  // Ensure typing starts automatically when entering TRIBUTE phase
+  useEffect(() => {
+    if (phase === 'TRIBUTE' && typedWords === 0) {
+      setTypedWords(1);
+    }
+  }, [phase, typedWords]);
+
+  // Letter word-by-word typewriter effect (comfortable, natural pace: 110ms per word)
   useEffect(() => {
     if (phase !== 'TRIBUTE' || isTributeDone) return;
 
     const timer = setTimeout(() => {
       setTypedWords((prev) => prev + 1);
-
-      if (tributeContainerRef.current) {
-        tributeContainerRef.current.scrollTop = tributeContainerRef.current.scrollHeight;
-      }
     }, 110);
 
     return () => clearTimeout(timer);
   }, [phase, isTributeDone, typedWords]);
+
+  // Smoothly auto-scroll internal text container as new words appear
+  // Once typing completes (isTributeDone), auto-scroll is disabled completely
+  useEffect(() => {
+    if (phase === 'TRIBUTE' && !isTributeDone && tributeContainerRef.current) {
+      const container = tributeContainerRef.current;
+      container.scrollTop = container.scrollHeight;
+    }
+  }, [typedWords, phase, isTributeDone]);
 
   // Footer character-by-character typewriter effect after letter completes
   useEffect(() => {
@@ -156,53 +186,76 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
     return () => clearTimeout(timer);
   }, [isTributeDone, isFooterDone, footerChars]);
 
-  // Tap to reveal full letter text immediately
+  // Tap to reveal full letter text immediately (if typing in progress)
   const handleSkipTributeTyping = () => {
-    setTypedWords(totalTributeWords);
-    setFooterChars(totalFooterChars);
+    if (!isTributeDone) {
+      setTypedWords(totalTributeWords);
+      setFooterChars(totalFooterChars);
+    }
   };
 
-  // Render letter text progressively word-by-word
+  // Render letter text progressively word-by-word with exact styling
   const renderTypedTribute = () => {
-    let wordsLeft = typedWords;
-
     return (
-      <div className="space-y-2.5 my-1">
-        {paragraphWordArrays.map((words, pIdx) => {
-          if (words.length === 0) return null;
-          const wordsToShow = Math.min(wordsLeft, words.length);
-          wordsLeft = Math.max(0, wordsLeft - words.length);
+      <div className="space-y-3 my-1">
+        {tributeParsed.map((p) => {
+          if (p.paragraphWordCount === 0) return null;
+          // Not reached yet
+          if (typedWords < p.startWordIndex) return null;
 
-          if (wordsToShow === 0) return null;
-          const text = words.slice(0, wordsToShow).join(' ');
-          const isCurrentlyTyping = wordsToShow < words.length && wordsToShow > 0;
+          // Paragraph styling tailored to letter hierarchy
+          let pClass = "font-serif text-xs sm:text-sm text-[#261b14] leading-[1.65] sm:leading-relaxed text-justify font-normal";
+          
+          if (p.pIdx === 0) {
+            // "My Dear Granddaughter ❤️"
+            pClass = "font-serif font-black text-base sm:text-lg text-[#2a1708] tracking-tight pb-0.5";
+          } else if (p.pIdx === 1) {
+            // "The Happiest Birthday to You, My Dear Granddaughter!"
+            pClass = "font-serif font-bold text-xs sm:text-sm text-[#8f6e1b] tracking-wide";
+          } else if (p.pIdx === 2) {
+            // "My dear little one,"
+            pClass = "font-serif italic text-xs sm:text-sm text-[#4a3525] font-medium";
+          } else if (p.pIdx === 5) {
+            // "And listen to me carefully, my dear…"
+            pClass = "font-serif italic text-xs sm:text-sm text-[#6e4e2e] font-semibold";
+          } else if (p.pIdx === 12) {
+            // "Happy Birthday once again, my precious granddaughter!"
+            pClass = "font-serif font-bold text-xs sm:text-sm text-[#8f6e1b] tracking-wide pt-1";
+          } else if (p.pIdx === 13) {
+            // "Keep smiling, stay brave, and always be happy."
+            pClass = "font-serif italic text-xs sm:text-sm text-[#4a3525] font-semibold";
+          } else if (p.pIdx === 14) {
+            // "With endless love and blessings,\nYour Thatha ❤️"
+            pClass = "text-right font-serif text-xs sm:text-sm text-[#5a4228] font-bold tracking-wide pt-2";
+          }
+
+          let runningIndex = p.startWordIndex;
 
           return (
-            <p
-              key={pIdx}
-              className="font-serif text-xs sm:text-sm text-[#261b14] leading-relaxed sm:leading-loose text-justify font-normal"
-            >
-              {text}
-              {isCurrentlyTyping && <PenWritingIndicator />}
-            </p>
-          );
-        })}
+            <div key={p.pIdx} className={pClass}>
+              {p.lines.map((words, lineIdx) => {
+                const lineStart = runningIndex;
+                const lineEnd = runningIndex + words.length - 1;
+                runningIndex += words.length;
 
-        {closingWordArrays.length > 0 && (() => {
-          const wordsToShow = Math.min(wordsLeft, closingWordArrays.length);
-          if (wordsToShow === 0) return null;
-          const text = closingWordArrays.slice(0, wordsToShow).join(' ');
-          const isCurrentlyTyping = wordsToShow < closingWordArrays.length;
+                if (typedWords < lineStart) return null;
 
-          return (
-            <div className="pt-3 text-center">
-              <p className="font-serif italic text-xs sm:text-sm text-[#8f6e1b] font-semibold tracking-wide leading-relaxed">
-                "{text}"
-                {isCurrentlyTyping && <PenWritingIndicator />}
-              </p>
+                const wordsToShowCount = Math.min(words.length, Math.max(0, typedWords - lineStart + 1));
+                if (wordsToShowCount <= 0) return null;
+
+                const lineText = words.slice(0, wordsToShowCount).join(' ');
+                const isWritingOnThisLine = typedWords >= lineStart && typedWords <= lineEnd && !isTributeDone;
+
+                return (
+                  <div key={lineIdx} className={lineIdx > 0 ? "mt-1" : ""}>
+                    <span>{lineText}</span>
+                    {isWritingOnThisLine && <PenWritingIndicator />}
+                  </div>
+                );
+              })}
             </div>
           );
-        })()}
+        })}
       </div>
     );
   };
@@ -396,25 +449,25 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
       {phase === 'TRIBUTE' && (
         <div
           onClick={handleSkipTributeTyping}
-          title="Tap anywhere to reveal full letter"
-          className="relative z-20 w-full h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center py-2 sm:py-4 px-3 sm:px-6 max-w-lg mx-auto cursor-pointer animate-fade-in"
+          title={!isTributeDone ? "Tap anywhere to reveal full letter" : undefined}
+          className="relative z-20 w-full h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center py-2 sm:py-3 px-3 sm:px-6 max-w-lg mx-auto animate-fade-in overflow-hidden"
         >
           {/* Header */}
-          <header className="text-center pt-1 shrink-0 w-full">
+          <header className="text-center pt-0.5 shrink-0 w-full">
             <span className="font-cinzel text-[10px] sm:text-xs tracking-[0.25em] text-gold-400 uppercase font-semibold">
               {tributeConfig.sectionTag || "In Everlasting Love & Reverence"}
             </span>
-            <h2 className="font-serif font-bold text-lg sm:text-2xl text-champagne-100 tracking-tight text-glow-gold mt-0.5">
+            <h2 className="font-serif font-bold text-base sm:text-xl text-champagne-100 tracking-tight text-glow-gold mt-0.5">
               {tributeConfig.title || "A Tribute to Our Beloved Grandfather"}
             </h2>
           </header>
 
           {/* Traditional Ivory Parchment Paper (Matching Cover Letter Style) */}
-          <main className="relative w-full rounded-2xl bg-[#faf6ee] text-[#1b120c] p-4 xs:p-5 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.9)] border-3 border-[#d4af37]/60 my-auto flex flex-col justify-between min-h-[360px] xs:min-h-[400px] sm:min-h-[460px] max-h-[68dvh]">
+          <main className="relative w-full rounded-2xl bg-[#faf6ee] text-[#1b120c] p-3.5 xs:p-4 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.9)] border-3 border-[#d4af37]/60 my-auto flex flex-col flex-1 min-h-0 max-h-[70dvh] sm:max-h-[72dvh] overflow-hidden">
             
             {/* ─────────────────────────────────────────────────────────
-                16:9 ASPECT RATIO GRANDFATHER PHOTOGRAPH (thatha.jpg)
-                Display complete photograph without unnecessary cropping
+                1. GRANDFATHER PHOTO – PRESERVE EXACTLY (STATIONARY AT TOP)
+                16:9 aspect ratio, fixed in position while letter scrolls
                 ───────────────────────────────────────────────────────── */}
             <div className="w-full max-w-[260px] xs:max-w-[290px] sm:max-w-[340px] aspect-[16/9] mx-auto rounded-xl overflow-hidden border-2 border-[#d4af37]/70 shadow-md bg-stone-900/10 shrink-0 mb-3 flex items-center justify-center">
               <img
@@ -432,10 +485,17 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
               />
             </div>
 
-            {/* Scrollable Letter Body (Internal Scroll Only) */}
+            {/* ─────────────────────────────────────────────────────────
+                2. LETTER – SCROLLABLE TEXT AREA ONLY
+                Vertical scrolling only, smooth wheel & touch gestures
+                ───────────────────────────────────────────────────────── */}
             <div
               ref={tributeContainerRef}
-              className="flex-1 overflow-y-auto no-scrollbar scroll-smooth pr-1 select-text my-1"
+              className="flex-1 min-h-0 overflow-y-auto parchment-scrollbar scroll-smooth pr-1.5 select-text my-1"
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
+              }}
             >
               {renderTypedTribute()}
             </div>
@@ -450,8 +510,8 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
               "Crafted by your Thambi, NAVIN"
               ───────────────────────────────────────────────────────── */}
           {isTributeDone && (
-            <div className="pt-2 sm:pt-3 text-center shrink-0 animate-fade-in">
-              <p className="font-handwritten text-2xl sm:text-3xl text-gold-300 font-bold tracking-wide drop-shadow-md text-glow-gold">
+            <div className="py-1 text-center shrink-0 animate-fade-in">
+              <p className="font-handwritten text-xl sm:text-2xl text-gold-300 font-bold tracking-wide drop-shadow-md text-glow-gold">
                 {footerText.slice(0, footerChars)}
                 {!isFooterDone && <PenWritingIndicator />}
               </p>
@@ -459,7 +519,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
           )}
 
           {/* Bottom Actions when complete */}
-          <footer className="shrink-0 pt-1 pb-2 text-center w-full">
+          <footer className="shrink-0 pt-0.5 pb-1 text-center w-full">
             {isFooterDone ? (
               <div className="flex items-center justify-center gap-4 text-xs font-serif">
                 <button

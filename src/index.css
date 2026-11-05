@@ -46,6 +46,25 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Subtle antique gold scrollbar for parchment paper */
+  .parchment-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .parchment-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .parchment-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.4);
+    border-radius: 4px;
+  }
+  .parchment-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.7);
+  }
+  .parchment-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 175, 55, 0.4) transparent;
+  }
 }
 
 @layer utilities {
