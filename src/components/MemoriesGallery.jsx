@@ -238,7 +238,7 @@ export default function MemoriesGallery({ onNext }) {
               })}
             </div>
 
-            {/* Active Caption & Index Underneath */}
+            {/* Active Caption Underneath */}
             <div className="relative z-20 text-center mt-1 sm:mt-2 px-4 max-w-md mx-auto">
               <h3 className="font-serif font-bold text-sm sm:text-base text-gold-300 drop-shadow-sm">
                 {activeMemory?.tag || activeMemory?.category}
@@ -247,12 +247,9 @@ export default function MemoriesGallery({ onNext }) {
                 "{activeMemory?.caption}"
               </p>
 
-              {/* Sleek Counter & Progress Track */}
-              <div className="flex items-center justify-center gap-3 mt-1.5">
-                <span className="font-mono text-[10px] text-gold-400/80 tracking-widest uppercase">
-                  {currentIndex + 1} / {filteredMemories.length}
-                </span>
-                <div className="w-24 sm:w-32 h-1 bg-gold-500/20 rounded-full overflow-hidden">
+              {/* Minimal Progress Line (Zero numerical labels or counters) */}
+              <div className="flex items-center justify-center mt-2">
+                <div className="w-20 sm:w-28 h-0.5 bg-gold-500/20 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-gold-500 to-amber-300 transition-all duration-300"
                     style={{

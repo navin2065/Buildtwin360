@@ -69,8 +69,9 @@ export default function EnvelopeLetter({ onNext }) {
     setVisibleChars(totalCharacters);
   };
 
-  // Transition to Birthday Surprise
+  // Transition to Birthday Surprise (Ensuring silence for waiting screen)
   const handleContinue = () => {
+    soundEngine.stopBirthdaySong();
     soundEngine.playCardClick();
     setIsExiting(true);
     setTimeout(() => {
@@ -129,7 +130,7 @@ export default function EnvelopeLetter({ onNext }) {
         );
       }
 
-      // Signoff: "Love you always and forever, NAVIN"
+      // Signoff: "Your Thambi, NAVIN"
       if (section.type === 'signoff') {
         return (
           <div key={section.id} className="text-right font-serif text-[11px] sm:text-xs text-[#5a4228] font-semibold tracking-wide">

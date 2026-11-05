@@ -164,7 +164,7 @@ export const EXPERIENCE_CONFIG = {
       src: "./images/that 2.30hrs call.jpeg",
       category: "Our Memories",
       tag: "My Longest Call",
-      caption: "Our first conversation that lasted 2 hours and 30 minutes.",
+      caption: "You are the only person I have ever spoken with for 2 hours and 30 minutes in a single call. I have never had such a long conversation with anyone else.",
     },
 
     // ── Personal photographs ──
@@ -405,7 +405,7 @@ export const EXPERIENCE_CONFIG = {
     {
       id: "signoff",
       type: "signoff",
-      text: "Love you always and forever, NAVIN",
+      text: "Your Thambi, NAVIN",
     },
   ],
 
@@ -416,8 +416,9 @@ export const EXPERIENCE_CONFIG = {
     surpriseWord: "SURPRISE",
     blowButtonText: "BLOW THE CANDLE",
     videoSource: "./candle.mp4",
-    aspectRatio: "3:4",
-    // Configurable audio assets
+    aspectRatio: "9:16",
+    // Configurable audio assets (Silent before blowing; plays when candle is blown)
+    birthdayVideoBgmSource: "./sound.mp3",
     birthdayBgmSource: "./sound.mp3",
     candleBlowSoundSource: null, // Custom blow sound fallback
     // Selected orbiting memory photos: ONLY Arunadevi's solo photographs
@@ -433,7 +434,7 @@ export const EXPERIENCE_CONFIG = {
 
   // ─────────────────────────────────────────────────────────────
   // 6. STAGE 6: GRANDFATHER TRIBUTE SECTION
-  // Automatic pen-writing typewriter + subtle sparkles
+  // Automatic word-by-word typewriter + subtle sparkles
   // ─────────────────────────────────────────────────────────────
   grandfatherTribute: {
     sectionTag: "In Everlasting Love & Reverence",
@@ -448,9 +449,9 @@ export const EXPERIENCE_CONFIG = {
 
   // ─────────────────────────────────────────────────────────────
   // 7. STAGE 7: FINAL FOOTER
-  // Exactly: "Crafted by Naveen"
+  // Exactly: "Crafted by your Thambi, NAVIN"
   // ─────────────────────────────────────────────────────────────
   footer: {
-    craftedBy: "Crafted by Naveen",
+    craftedBy: "Crafted by your Thambi, NAVIN",
   },
 };

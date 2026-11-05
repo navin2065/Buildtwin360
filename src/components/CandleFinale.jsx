@@ -14,7 +14,7 @@ export default function CandleFinale({ onRestart }) {
   const [videoError, setVideoError] = useState(false);
 
   const videoRef = useRef(null);
-  const signatureFull = 'Crafted With All My Love,\nYour Lovable Navi ❤️';
+  const signatureFull = 'Crafted by your Thambi,\nNAVIN';
 
   // Step 2 & 3: User clicks "Blow The Candle" -> 5-Second Video & Floating Typography
   const handleBlowCandle = () => {

@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
  * GoldenButterflies: High-performance canvas-rendered luminous golden butterflies
  * with realistic wing-flapping, curved flight paths, and glowing stardust trails.
  */
-export default function GoldenButterflies({ count = 14, interactive = true }) {
+export default function GoldenButterflies({ count = 14, interactive = true, className = "fixed inset-0 pointer-events-none z-10 w-full h-full" }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -45,21 +45,36 @@ export default function GoldenButterflies({ count = 14, interactive = true }) {
 
     // Butterfly Class
     class Butterfly {
-      constructor() {
+      constructor(index = 0, total = count) {
+        this.index = index;
+        this.total = total;
         this.reset(true);
       }
 
       reset(initial = false) {
-        this.x = initial ? Math.random() * width : Math.random() < 0.5 ? -40 : width + 40;
-        this.y = initial ? Math.random() * height : Math.random() * height;
-        this.size = 10 + Math.random() * 12; // Butterfly size
-        this.speed = 0.8 + Math.random() * 1.2;
+        if (initial) {
+          // Spread evenly across distinct sectors of the screen (no crowding)
+          const cols = 3;
+          const rows = Math.ceil(this.total / cols);
+          const col = this.index % cols;
+          const row = Math.floor(this.index / cols);
+          const sectorW = width / cols;
+          const sectorH = height / rows;
+          this.x = col * sectorW + Math.random() * (sectorW * 0.8) + (sectorW * 0.1);
+          this.y = row * sectorH + Math.random() * (sectorH * 0.8) + (sectorH * 0.1);
+        } else {
+          // Enter from outer edges
+          this.x = Math.random() < 0.5 ? -40 : width + 40;
+          this.y = Math.random() * height;
+        }
+        this.size = 11 + Math.random() * 12; // Butterfly size
+        this.speed = 0.75 + Math.random() * 1.0;
         this.angle = (Math.random() * Math.PI) / 3 - Math.PI / 6 + (this.x < width / 2 ? 0 : Math.PI);
         this.targetAngle = this.angle;
-        this.angularSpeed = 0.03 + Math.random() * 0.03;
-        this.flapSpeed = 0.18 + Math.random() * 0.1;
+        this.angularSpeed = 0.025 + Math.random() * 0.025;
+        this.flapSpeed = 0.17 + Math.random() * 0.09;
         this.flap = Math.random() * Math.PI * 2;
-        this.alpha = 0.65 + Math.random() * 0.35;
+        this.alpha = 0.7 + Math.random() * 0.3;
         this.wobbleSpeed = 0.02 + Math.random() * 0.03;
         this.wobbleTime = Math.random() * 100;
         this.trail = [];
@@ -201,7 +216,7 @@ export default function GoldenButterflies({ count = 14, interactive = true }) {
       pulse: Math.random() * Math.PI,
     }));
 
-    const butterflies = Array.from({ length: count }, () => new Butterfly());
+    const butterflies = Array.from({ length: count }, (_, i) => new Butterfly(i, count));
 
     // Render Loop
     const render = () => {
@@ -248,7 +263,7 @@ export default function GoldenButterflies({ count = 14, interactive = true }) {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-20 w-full h-full"
+      className={className}
     />
   );
 }

@@ -28,24 +28,24 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
   const { celebration, grandfatherTribute, footer } = EXPERIENCE_CONFIG;
 
   /**
-   * Exact Sequential Phases:
-   * 1. 'READY'           : Clean 3:4 video frame with glowing "SURPRISE" inside.
-   *                        Background birthday instrumental BGM plays gently.
+   * Sequential Flow:
+   * 1. 'READY'           : Silent waiting screen. Clean 9:16 video frame with "SURPRISE".
+   *                        NO butterflies, NO autoplay BGM.
    *                        Prominent "BLOW THE CANDLE" button below frame.
-   * 2. 'FADING_SURPRISE' : BGM stops, blow sound triggers, "SURPRISE" fades away,
-   *                        golden butterflies fly across screen.
-   * 3. 'PLAYING'         : 3:4 video autoplays; 6 small photos orbit outer sides.
+   * 2. 'FADING_SURPRISE' : Candle blow sound triggers, "SURPRISE" fades,
+   *                        golden butterflies fly across screen, BGM starts.
+   * 3. 'PLAYING'         : Full original video plays with object-fit: contain (no cropping);
+   *                        6 solo photos orbit in wide oval around frame.
    * 4. 'TRIBUTE'         : Video ends -> Grandfather Tribute AUTOMATICALLY appears
-   *                        and starts writing with pen-writing effect & sparkles,
-   *                        followed by "Crafted by your Thambi, NAVIN".
+   *                        and types progressively word-by-word with pen indicator & sparkles.
+   *                        Followed by character-by-character "Crafted by your Thambi, NAVIN".
    */
   const [phase, setPhase] = useState('READY');
   const [videoError, setVideoError] = useState(false);
-  const [showSwarm, setShowSwarm] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Typewriter state for Grandfather Tribute & Footer
-  const [typedChars, setTypedChars] = useState(0);
+  // Word-by-word state for Grandfather Tribute & character state for Footer
+  const [typedWords, setTypedWords] = useState(0);
   const [footerChars, setFooterChars] = useState(0);
 
   const videoRef = useRef(null);
@@ -61,82 +61,89 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Play pleasant birthday instrumental BGM before clicking "BLOW THE CANDLE"
+  // Cleanup BGM on unmount
   useEffect(() => {
-    if (phase === 'READY') {
-      soundEngine.playBirthdaySong(celebration.birthdayBgmSource || '/sound.mp3');
-    }
     return () => {
       soundEngine.stopBirthdaySong();
     };
-  }, [phase, celebration.birthdayBgmSource]);
+  }, []);
 
-  // Grandfather Tribute text preparation
+  // Grandfather Tribute word-by-word preparation
   const tributeParagraphs = grandfatherTribute.paragraphs || [];
   const tributeClosing = grandfatherTribute.closing || '';
-  const allTributeText = [...tributeParagraphs, tributeClosing].join('\n\n');
-  const totalTributeChars = allTributeText.length;
+
+  const paragraphWordArrays = tributeParagraphs.map((p) =>
+    p.trim().length > 0 ? p.trim().split(/\s+/) : []
+  );
+  const closingWordArrays =
+    tributeClosing.trim().length > 0 ? tributeClosing.trim().split(/\s+/) : [];
+
+  const totalTributeWords =
+    paragraphWordArrays.reduce((sum, words) => sum + words.length, 0) + closingWordArrays.length;
 
   const footerText = footer.craftedBy || 'Crafted by your Thambi, NAVIN';
   const totalFooterChars = footerText.length;
 
-  // Derived states to prevent cascading renders
-  const isTributeDone = typedChars >= totalTributeChars;
+  const isTributeDone = typedWords >= totalTributeWords;
   const isFooterDone = isTributeDone && footerChars >= totalFooterChars;
 
-  // Selected orbiting photos from actual files
+  // Selected orbiting photos: ONLY Arunadevi's solo photographs
   const orbitPhotos = celebration.orbitPhotos || [];
 
   // User clicks "BLOW THE CANDLE"
   const handleBlowCandle = () => {
     if (phase !== 'READY') return;
 
-    // 1. Stop background BGM and play candle blow sound
-    soundEngine.stopBirthdaySong();
+    // 1. Play candle blow sound
     if (celebration.candleBlowSoundSource) {
       soundEngine.playBirthdaySong(celebration.candleBlowSoundSource);
     } else {
       soundEngine.playCandleBlow();
     }
 
-    // 2. Fade the word "SURPRISE" and launch golden butterflies
-    setPhase('FADING_SURPRISE');
-    setShowSwarm(true);
+    // 2. Start configurable video BGM / audio in sync
+    const videoBgm = celebration.birthdayVideoBgmSource || celebration.birthdayBgmSource;
+    if (videoBgm) {
+      soundEngine.playBirthdaySong(videoBgm);
+    }
 
-    // 3. Once text fades (900ms), reveal and autoplay birthday video
+    // 3. Fade "SURPRISE" and trigger golden butterflies
+    setPhase('FADING_SURPRISE');
+
+    // 4. Reveal and autoplay complete birthday video
     setTimeout(() => {
       setPhase('PLAYING');
-      setShowSwarm(false);
       if (videoRef.current) {
         videoRef.current.currentTime = 0;
         videoRef.current.play().catch(() => {});
       }
-    }, 900);
+    }, 850);
   };
 
-  // Video complete handler: onEnded -> transition smoothly to Grandfather Tribute
+  // Video complete handler: onEnded -> transition automatically to Grandfather Tribute
   const handleVideoEnded = () => {
+    soundEngine.stopBirthdaySong();
     soundEngine.playBellChime();
     setPhase('TRIBUTE');
-    setTypedChars(1); // AUTOMATICALLY start writing immediately
+    setTypedWords(1); // AUTOMATICALLY starts writing immediately
   };
 
-  // Tribute character-by-character typewriter effect (~22ms per character matching cover letter)
+  // Tribute word-by-word typewriter effect (smooth natural handwriting pace: 110ms per word)
   useEffect(() => {
     if (phase !== 'TRIBUTE' || isTributeDone) return;
 
     const timer = setTimeout(() => {
-      setTypedChars((prev) => prev + 1);
+      setTypedWords((prev) => prev + 1);
 
       if (tributeContainerRef.current) {
         tributeContainerRef.current.scrollTop = tributeContainerRef.current.scrollHeight;
       }
-    }, 22);
+    }, 110);
 
     return () => clearTimeout(timer);
-  }, [phase, isTributeDone]);
+  }, [phase, isTributeDone, typedWords]);
 
-  // Footer typewriter effect after tribute completes (character by character)
+  // Footer character-by-character typewriter effect after tribute completes
   useEffect(() => {
     if (!isTributeDone || isFooterDone) return;
 
@@ -145,61 +152,81 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
     }, 45);
 
     return () => clearTimeout(timer);
-  }, [isTributeDone, isFooterDone]);
+  }, [isTributeDone, isFooterDone, footerChars]);
 
   // Tap to reveal full tribute text immediately
   const handleSkipTributeTyping = () => {
-    setTypedChars(totalTributeChars);
+    setTypedWords(totalTributeWords);
     setFooterChars(totalFooterChars);
   };
 
-  // Render tribute text character-by-character
+  // Render tribute text progressively word-by-word
   const renderTypedTribute = () => {
-    let remainingChars = typedChars;
-    const items = [...tributeParagraphs, tributeClosing];
+    let wordsLeft = typedWords;
 
-    return items.map((paragraph, pIdx) => {
-      const isClosing = pIdx === items.length - 1;
-      const pLen = paragraph.length;
-      const count = Math.min(remainingChars, pLen);
-      remainingChars = Math.max(0, remainingChars - pLen - 2);
+    return (
+      <div className="space-y-2.5 my-1">
+        {paragraphWordArrays.map((words, pIdx) => {
+          if (words.length === 0) return null;
+          const wordsToShow = Math.min(wordsLeft, words.length);
+          wordsLeft = Math.max(0, wordsLeft - words.length);
 
-      if (count === 0) return null;
-      const textToDisplay = paragraph.slice(0, count);
-      const isCurrentlyTyping = count < pLen && count > 0;
+          if (wordsToShow === 0) return null;
+          const text = words.slice(0, wordsToShow).join(' ');
+          const isCurrentlyTyping = wordsToShow < words.length && wordsToShow > 0;
 
-      if (isClosing) {
-        return (
-          <div key={pIdx} className="pt-3 text-center">
-            <p className="font-serif italic text-xs sm:text-sm text-[#8f6e1b] font-semibold tracking-wide leading-relaxed">
-              "{textToDisplay}"
+          return (
+            <p
+              key={pIdx}
+              className="font-serif text-xs sm:text-sm text-[#261b14] leading-relaxed sm:leading-loose text-justify font-normal"
+            >
+              {text}
               {isCurrentlyTyping && <PenWritingIndicator />}
             </p>
-          </div>
-        );
-      }
+          );
+        })}
 
-      return (
-        <p
-          key={pIdx}
-          className="font-serif text-xs sm:text-sm text-[#261b14] leading-relaxed sm:leading-loose text-justify font-normal"
-        >
-          {textToDisplay}
-          {isCurrentlyTyping && <PenWritingIndicator />}
-        </p>
-      );
-    });
+        {closingWordArrays.length > 0 && (() => {
+          const wordsToShow = Math.min(wordsLeft, closingWordArrays.length);
+          if (wordsToShow === 0) return null;
+          const text = closingWordArrays.slice(0, wordsToShow).join(' ');
+          const isCurrentlyTyping = wordsToShow < closingWordArrays.length;
+
+          return (
+            <div className="pt-3 text-center">
+              <p className="font-serif italic text-xs sm:text-sm text-[#8f6e1b] font-semibold tracking-wide leading-relaxed">
+                "{text}"
+                {isCurrentlyTyping && <PenWritingIndicator />}
+              </p>
+            </div>
+          );
+        })()}
+      </div>
+    );
   };
 
   return (
     <div className="fixed inset-0 w-full h-[100dvh] max-h-[100dvh] bg-[#070e0a] text-champagne-100 flex flex-col justify-between items-center select-none overflow-hidden z-40">
-      {/* Background Magical Atmosphere: Dark Forest & Golden Glow (NO RED UI) */}
+      {/* Background Atmosphere */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(23,46,35,0.7)_0%,rgba(5,10,7,0.98)_95%)] pointer-events-none" />
-      <GoldenButterflies count={showSwarm ? 22 : 10} interactive={false} />
+
+      {/* ─────────────────────────────────────────────────────────────
+          BUTTERFLY ANIMATION — STRICTLY TRIGGER ONLY AFTER BLOW THE CANDLE
+          In READY phase: completely absent.
+          After clicking: flies naturally across screen behind video frame (z-10).
+          ───────────────────────────────────────────────────────────── */}
+      {phase !== 'READY' && (
+        <GoldenButterflies
+          count={isMobile ? 12 : 18}
+          interactive={false}
+          className="fixed inset-0 pointer-events-none z-10 w-full h-full"
+        />
+      )}
 
       {/* ─────────────────────────────────────────────────────────────
           STAGES 5 & 6: VIDEO FRAME (SURPRISE REVEAL & PLAYBACK)
-          Mobile-aligned: zero overflow, perfectly centered, no overlap.
+          Preserves complete original video frame with object-fit: contain.
+          No cropping of cake, faces, or hands.
           ───────────────────────────────────────────────────────────── */}
       {phase !== 'TRIBUTE' && (
         <div className="relative z-20 w-full h-full flex flex-col justify-between items-center py-2 sm:py-4 px-3 max-w-lg mx-auto animate-fade-in">
@@ -212,28 +239,30 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
           </div>
 
           {/* ─────────────────────────────────────────────────────────
-              CENTER CONTAINER: 3:4 VIDEO FRAME + CIRCULAR ORBITING PHOTOS
+              CENTER CONTAINER: COMPLETE VIDEO FRAME + ORBITING PHOTOS
               ───────────────────────────────────────────────────────── */}
           <div className="relative my-auto flex items-center justify-center w-full">
             
             {/* ─────────────────────────────────────────────────────
-                CIRCULAR ORBITING PHOTOS (OUTER SIDES OF VIDEO FRAME)
-                Strictly outside the 3:4 video area, never covering it
+                CIRCULAR / ELLIPTICAL ORBITING PHOTOS
+                Generous radius around video frame, never overlapping video.
+                Strictly Arunadevi's solo photographs.
                 ───────────────────────────────────────────────────── */}
             {phase === 'PLAYING' && (
               <div
                 className="absolute rounded-full pointer-events-none z-10 flex items-center justify-center animate-orbit"
                 style={{
-                  width: isMobile ? '330px' : '440px',
-                  height: isMobile ? '330px' : '440px',
+                  width: isMobile ? '350px' : '480px',
+                  height: isMobile ? '350px' : '480px',
                 }}
               >
                 {orbitPhotos.map((photo, i) => {
                   const angle = (i * 360) / orbitPhotos.length;
-                  const radius = isMobile ? 155 : 210;
+                  const radiusX = isMobile ? 138 : 205;
+                  const radiusY = isMobile ? 218 : 285;
                   const rad = (angle * Math.PI) / 180;
-                  const x = Math.round(radius * Math.cos(rad));
-                  const y = Math.round(radius * Math.sin(rad));
+                  const x = Math.round(radiusX * Math.cos(rad));
+                  const y = Math.round(radiusY * Math.sin(rad));
 
                   return (
                     <div
@@ -241,7 +270,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
                       style={{
                         transform: `translate3d(${x}px, ${y}px, 0)`,
                       }}
-                      className="absolute w-9 h-11 xs:w-10 xs:h-12 sm:w-12 sm:h-14 rounded-lg overflow-hidden border border-gold-400/60 shadow-[0_4px_16px_rgba(0,0,0,0.85)] bg-stone-900 pointer-events-none"
+                      className="absolute w-10 h-13 xs:w-11 xs:h-14 sm:w-13 sm:h-16 rounded-xl overflow-hidden border border-gold-400/80 shadow-[0_4px_16px_rgba(0,0,0,0.85)] bg-stone-900 pointer-events-none"
                     >
                       <div className="w-full h-full animate-orbit-counter">
                         <img
@@ -257,12 +286,13 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
             )}
 
             {/* ─────────────────────────────────────────────────────
-                THE SINGLE CLEAN, LUXURY 3:4 VIDEO FRAME
-                Sized properly for mobile without cropping or distortion
+                THE COMPLETE 9:16 (478x850) ORIGINAL VIDEO CONTAINER
+                Using object-contain to display 100% of the video frame.
+                Zero cropping of top, bottom, cake, or faces.
                 ───────────────────────────────────────────────────── */}
-            <div className="relative z-20 w-[210px] xs:w-[230px] sm:w-[270px] md:w-[300px] aspect-[3/4] max-h-[58dvh] rounded-2xl overflow-hidden bg-black/95 border-2 border-gold-400/80 shadow-[0_0_45px_rgba(212,175,55,0.45),0_25px_60px_rgba(0,0,0,0.95)] flex items-center justify-center">
+            <div className="relative z-20 w-auto max-w-[80vw] xs:max-w-[74vw] sm:max-w-[320px] h-[52dvh] xs:h-[56dvh] sm:h-[62dvh] max-h-[520px] aspect-[478/850] rounded-2xl overflow-hidden bg-black/95 border-2 border-gold-400/80 shadow-[0_0_45px_rgba(212,175,55,0.45),0_25px_60px_rgba(0,0,0,0.95)] flex items-center justify-center">
               
-              {/* REAL VIDEO PLAYER (Hidden until blown) */}
+              {/* REAL VIDEO PLAYER (Full frame, object-contain, centered) */}
               {!videoError ? (
                 <video
                   ref={videoRef}
@@ -274,7 +304,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
                     setVideoError(true);
                     setTimeout(handleVideoEnded, 5000);
                   }}
-                  className={`w-full h-full object-cover transition-opacity duration-1000 ${
+                  className={`w-full h-full object-contain transition-opacity duration-700 ${
                     phase === 'PLAYING' ? 'opacity-100' : 'opacity-0 pointer-events-none'
                   }`}
                 >
@@ -296,12 +326,12 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
               )}
 
               {/* ─────────────────────────────────────────────────
-                  INSIDE VIDEO FRAME: THE WORD "SURPRISE"
-                  Covering the video until user clicks "BLOW THE CANDLE"
+                  BEFORE BLOWING: "SURPRISE" OVERLAY
+                  Fades out when user clicks "BLOW THE CANDLE"
                   ───────────────────────────────────────────────── */}
               {(phase === 'READY' || phase === 'FADING_SURPRISE') && (
                 <div
-                  className={`absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#11231a] via-[#070e0a] to-[#040806] transition-opacity duration-900 ${
+                  className={`absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#11231a] via-[#070e0a] to-[#040806] transition-opacity duration-700 ${
                     phase === 'FADING_SURPRISE' ? 'opacity-0 pointer-events-none' : 'opacity-100'
                   }`}
                 >
@@ -356,9 +386,9 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          STAGE 6 & 7: GRANDFATHER TRIBUTE SECTION
-          Automatically starts handwriting when video completes!
-          Realistic pen-writing + subtle sparkles + forest/golden theme
+          STAGES 6 & 7: GRANDFATHER TRIBUTE SECTION
+          Starts automatically when video completes: Progressive word-by-word typing.
+          Followed by separate signature: "Crafted by your Thambi, NAVIN".
           ───────────────────────────────────────────────────────────── */}
       {phase === 'TRIBUTE' && (
         <div
@@ -382,7 +412,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
             {/* Scrollable Letter Body (Internal Scroll Only) */}
             <div
               ref={tributeContainerRef}
-              className="flex-1 overflow-y-auto no-scrollbar scroll-smooth pr-1 select-text space-y-2.5 my-1"
+              className="flex-1 overflow-y-auto no-scrollbar scroll-smooth pr-1 select-text my-1"
             >
               {renderTypedTribute()}
             </div>
@@ -394,7 +424,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
           {/* ─────────────────────────────────────────────────────────
               STAGE 7: SEPARATE FINAL SIGNATURE BELOW THE LETTER
               Visually separate from tribute, types character by character:
-              "Crafted by Naveen"
+              "Crafted by your Thambi, NAVIN"
               ───────────────────────────────────────────────────────── */}
           {isTributeDone && (
             <div className="pt-2 sm:pt-3 text-center shrink-0 animate-fade-in">
@@ -414,7 +444,7 @@ export default function BirthdaySurpriseCelebration({ onRestart }) {
                     e.stopPropagation();
                     soundEngine.playCardClick();
                     setPhase('READY');
-                    setTypedChars(0);
+                    setTypedWords(0);
                     setFooterChars(0);
                   }}
                   className="text-gold-300 hover:text-white underline underline-offset-4 cursor-pointer"
