@@ -204,9 +204,10 @@ export default function Screen1Opening({ onEnter }) {
           }`}
         >
           {/* Main Heading: "Welcome to Your Birthday Surprise" */}
-          <h1 className="font-serif font-bold text-2xl sm:text-3xl md:text-4xl text-champagne-100 tracking-tight text-glow-gold mb-6">
-            Welcome to Your Birthday Surprise
-          </h1>
+          {/* Main Heading: Turn the Page */}
+<h1 className="font-serif font-bold text-2xl sm:text-3xl md:text-4xl text-champagne-100 tracking-tight text-glow-gold mb-6">
+  Turn the Page...
+</h1>
 
           {/* ─────────────────────────────────────────────────────────
               PASSWORD INPUT & CONTINUE BUTTON
@@ -218,8 +219,8 @@ export default function Screen1Opening({ onEnter }) {
                 value={inputWord}
                 onChange={handleInputChange}
                 disabled={isUnlocking}
-                placeholder="Enter the Password"
-                aria-label="Enter the Password"
+                placeholder="Enter the Special Word"
+                aria-label="Enter the Special Word"
                 autoFocus
                 autoComplete="off"
                 className={`w-full px-5 py-3 sm:py-3.5 rounded-full bg-forest-950/80 text-champagne-100 placeholder-champagne-300/40 text-center font-serif text-sm sm:text-base border transition-all duration-300 outline-none backdrop-blur-md shadow-inner ${
