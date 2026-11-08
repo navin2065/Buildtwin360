@@ -336,13 +336,13 @@ export const EXPERIENCE_CONFIG = {
 
     // ── Special Moments ──
     {
-      id: "golden-heart",
-      filename: "golden heart.jpeg",
-      src: "./images/golden heart.jpeg",
-      category: "Special Moments",
-      tag: "Maternal Warmth",
-      caption: "A warm mother-and-child moment filled with tender love.",
-    },
+  id: "golden-heart",
+  filename: "golden heart.jpeg",
+  src: "./images/golden heart.jpeg",
+  category: "Special Moments",
+  tag: "Golden Heart",
+  caption: "A heart full of kindness, warmth, and beautiful little moments.",
+},
     {
       id: "dance",
       filename: "dance.jpeg",
